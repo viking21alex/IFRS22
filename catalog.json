@@ -1,0 +1,442 @@
+[
+  {
+    "file": "01.md",
+    "title": "Cover Image (Part 1)",
+    "size_kb": 0.1
+  },
+  {
+    "file": "02.md",
+    "title": "Cover Image (Part 2)",
+    "size_kb": 0.1
+  },
+  {
+    "file": "03.md",
+    "title": "Copyright",
+    "size_kb": 3.1
+  },
+  {
+    "file": "04.md",
+    "title": "LexisNexis BOOKPLATE",
+    "size_kb": 0.3
+  },
+  {
+    "file": "05.md",
+    "title": "TABLE OF CONTENTS",
+    "size_kb": 7.1
+  },
+  {
+    "file": "06.md",
+    "title": "Prelims",
+    "size_kb": 14.6
+  },
+  {
+    "file": "07.md",
+    "title": "01 - Introduction, accounting principles and applicability of IFRS (Conceptual framework)",
+    "size_kb": 79.5
+  },
+  {
+    "file": "08.md",
+    "title": "02 - First-time adoption of IFRS (IFRS 1)",
+    "size_kb": 349.8
+  },
+  {
+    "file": "09.md",
+    "title": "03 - Accounting policies, accounting estimates and errors (IAS 8)",
+    "size_kb": 87.7
+  },
+  {
+    "file": "10.md",
+    "title": "04 - Presentation of financial statements (IAS 1)",
+    "size_kb": 270.5
+  },
+  {
+    "file": "11.md",
+    "title": "05 - Fair value (IFRS 13) (Part 1)",
+    "size_kb": 121.8
+  },
+  {
+    "file": "12.md",
+    "title": "05 - Fair value (IFRS 13) (Part 2)",
+    "size_kb": 179.7
+  },
+  {
+    "file": "13.md",
+    "title": "05 - Fair value (IFRS 13) (Part 3)",
+    "size_kb": 217.1
+  },
+  {
+    "file": "14.md",
+    "title": "06 - Related party disclosures (IAS 24)",
+    "size_kb": 167.8
+  },
+  {
+    "file": "15.md",
+    "title": "07 - Cash flow statements (IAS 7)",
+    "size_kb": 391.7
+  },
+  {
+    "file": "16.md",
+    "title": "08 - Operating segments (IFRS 8)",
+    "size_kb": 151.9
+  },
+  {
+    "file": "17.md",
+    "title": "09 - Events after the reporting period and financial commitments (IAS 10)",
+    "size_kb": 53.7
+  },
+  {
+    "file": "18.md",
+    "title": "10 - Hyper-inflation (IAS 29)",
+    "size_kb": 189.7
+  },
+  {
+    "file": "19.md",
+    "title": "11 - Revenue from contracts with customers (IFRS 15) (Part 1)",
+    "size_kb": 285.5
+  },
+  {
+    "file": "20.md",
+    "title": "11 - Revenue from contracts with customers (IFRS 15) (Part 2)",
+    "size_kb": 202.0
+  },
+  {
+    "file": "21.md",
+    "title": "11 - Revenue from contracts with customers (IFRS 15) (Part 3)",
+    "size_kb": 193.4
+  },
+  {
+    "file": "22.md",
+    "title": "11 - Revenue from contracts with customers (IFRS 15) (Part 4)",
+    "size_kb": 183.1
+  },
+  {
+    "file": "23.md",
+    "title": "12 - Employee benefits (IAS 19)",
+    "size_kb": 386.3
+  },
+  {
+    "file": "24.md",
+    "title": "13 - Share-based payments (IFRS 2) (Part 1)",
+    "size_kb": 101.2
+  },
+  {
+    "file": "25.md",
+    "title": "13 - Share-based payments (IFRS 2) (Part 2)",
+    "size_kb": 254.6
+  },
+  {
+    "file": "26.md",
+    "title": "13 - Share-based payments (IFRS 2) (Part 3)",
+    "size_kb": 249.7
+  },
+  {
+    "file": "27.md",
+    "title": "14 - Taxation (IAS 12) (Part 1)",
+    "size_kb": 204.5
+  },
+  {
+    "file": "28.md",
+    "title": "14 - Taxation (IAS 12) (Part 2)",
+    "size_kb": 213.2
+  },
+  {
+    "file": "29.md",
+    "title": "14 - Taxation (IAS 12) (Part 3)",
+    "size_kb": 253.5
+  },
+  {
+    "file": "30.md",
+    "title": "14 - Taxation (IAS 12) (Part 4)",
+    "size_kb": 246.0
+  },
+  {
+    "file": "31.md",
+    "title": "14 - Taxation (IAS 12) (Part 5)",
+    "size_kb": 243.0
+  },
+  {
+    "file": "32.md",
+    "title": "14 - Taxation (IAS 12) (Part 6)",
+    "size_kb": 260.4
+  },
+  {
+    "file": "33.md",
+    "title": "15 - Leases (IFRS 16) (Part 1)",
+    "size_kb": 118.8
+  },
+  {
+    "file": "34.md",
+    "title": "15 - Leases (IFRS 16) (Part 2)",
+    "size_kb": 200.7
+  },
+  {
+    "file": "35.md",
+    "title": "15 - Leases (IFRS 16) (Part 3)",
+    "size_kb": 214.7
+  },
+  {
+    "file": "36.md",
+    "title": "16 - Provisions, contingent liabilities and contingent assets (IAS 37)",
+    "size_kb": 238.2
+  },
+  {
+    "file": "37.md",
+    "title": "17 - Government grants (IAS 20)",
+    "size_kb": 41.9
+  },
+  {
+    "file": "38.md",
+    "title": "21 - Intangible assets (IAS 38)",
+    "size_kb": 295.3
+  },
+  {
+    "file": "39.md",
+    "title": "22 - Property, plant and equipment (IAS 16)",
+    "size_kb": 250.4
+  },
+  {
+    "file": "40.md",
+    "title": "23 - Investment property (IAS 40)",
+    "size_kb": 78.1
+  },
+  {
+    "file": "41.md",
+    "title": "24 - Impairment of assets (IAS 36) (Part 1)",
+    "size_kb": 117.1
+  },
+  {
+    "file": "42.md",
+    "title": "24 - Impairment of assets (IAS 36) (Part 2)",
+    "size_kb": 199.4
+  },
+  {
+    "file": "43.md",
+    "title": "24 - Impairment of assets (IAS 36) (Part 3)",
+    "size_kb": 244.3
+  },
+  {
+    "file": "44.md",
+    "title": "25 - Inventories (IAS 2)",
+    "size_kb": 124.7
+  },
+  {
+    "file": "45.md",
+    "title": "26 - Consolidated financial statements (IFRS 10) (Part 1)",
+    "size_kb": 149.3
+  },
+  {
+    "file": "46.md",
+    "title": "26 - Consolidated financial statements (IFRS 10) (Part 2)",
+    "size_kb": 217.9
+  },
+  {
+    "file": "47.md",
+    "title": "26 - Consolidated financial statements (IFRS 10) (Part 3)",
+    "size_kb": 242.7
+  },
+  {
+    "file": "48.md",
+    "title": "27 - Investment entities (IFRS 10)",
+    "size_kb": 90.5
+  },
+  {
+    "file": "49.md",
+    "title": "28 - Separate financial statements (IAS 27)",
+    "size_kb": 76.4
+  },
+  {
+    "file": "50.md",
+    "title": "29 - Business combinations (IFRS 3) (Part 1)",
+    "size_kb": 185.8
+  },
+  {
+    "file": "51.md",
+    "title": "29 - Business combinations (IFRS 3) (Part 2)",
+    "size_kb": 216.8
+  },
+  {
+    "file": "52.md",
+    "title": "29 - Business combinations (IFRS 3) (Part 3)",
+    "size_kb": 204.2
+  },
+  {
+    "file": "53.md",
+    "title": "30 - Disposal of subsidiaries, businesses and non-current assets (IFRS 5) (Part 1)",
+    "size_kb": 99.4
+  },
+  {
+    "file": "54.md",
+    "title": "30 - Disposal of subsidiaries, businesses and non-current assets (IFRS 5) (Part 2)",
+    "size_kb": 213.8
+  },
+  {
+    "file": "55.md",
+    "title": "30 - Disposal of subsidiaries, businesses and non-current assets (IFRS 5) (Part 3)",
+    "size_kb": 232.8
+  },
+  {
+    "file": "56.md",
+    "title": "31 - Equity accounting (IAS 28)",
+    "size_kb": 294.4
+  },
+  {
+    "file": "57.md",
+    "title": "32 - Joint arrangements (IFRS 11)",
+    "size_kb": 265.0
+  },
+  {
+    "file": "58.md",
+    "title": "33 - Agriculture (IAS 41)",
+    "size_kb": 123.8
+  },
+  {
+    "file": "59.md",
+    "title": "34 - Service concession arrangements (IFRIC 12)",
+    "size_kb": 183.9
+  },
+  {
+    "file": "60.md",
+    "title": "35 - Interim financial reporting (IAS 34)",
+    "size_kb": 216.4
+  },
+  {
+    "file": "61.md",
+    "title": "40 - Introduction to financial instruments – objectives, definitions and scope (IAS 39, IFRS 9, IAS 32, IFRS 7)",
+    "size_kb": 188.9
+  },
+  {
+    "file": "62.md",
+    "title": "41 - Embedded derivatives in host contracts (IFRS 9)",
+    "size_kb": 229.5
+  },
+  {
+    "file": "63.md",
+    "title": "42 - Classification and measurement (IFRS 9) (Part 1)",
+    "size_kb": 157.3
+  },
+  {
+    "file": "64.md",
+    "title": "42 - Classification and measurement (IFRS 9) (Part 2)",
+    "size_kb": 177.7
+  },
+  {
+    "file": "65.md",
+    "title": "42 - Classification and measurement (IFRS 9) (Part 3)",
+    "size_kb": 194.1
+  },
+  {
+    "file": "66.md",
+    "title": "42 - Classification and measurement (IFRS 9) (Part 4)",
+    "size_kb": 204.3
+  },
+  {
+    "file": "67.md",
+    "title": "43 - Financial liabilities and equity (IFRS 9, IAS 32)",
+    "size_kb": 425.6
+  },
+  {
+    "file": "68.md",
+    "title": "44 - Recognition and de-recognition (IFRS 9, IAS 39) (Part 1)",
+    "size_kb": 119.4
+  },
+  {
+    "file": "69.md",
+    "title": "44 - Recognition and de-recognition (IFRS 9, IAS 39) (Part 2)",
+    "size_kb": 254.2
+  },
+  {
+    "file": "70.md",
+    "title": "44 - Recognition and de-recognition (IFRS 9, IAS 39) (Part 3)",
+    "size_kb": 272.0
+  },
+  {
+    "file": "71.md",
+    "title": "45 - Impairment (IFRS 9) (Part 1)",
+    "size_kb": 80.3
+  },
+  {
+    "file": "72.md",
+    "title": "45 - Impairment (IFRS 9) (Part 2)",
+    "size_kb": 248.7
+  },
+  {
+    "file": "73.md",
+    "title": "45 - Impairment (IFRS 9) (Part 3)",
+    "size_kb": 249.7
+  },
+  {
+    "file": "74.md",
+    "title": "46 – Hedge accounting (IFRS 9) (Part 1)",
+    "size_kb": 192.7
+  },
+  {
+    "file": "75.md",
+    "title": "46 – Hedge accounting (IFRS 9) (Part 2)",
+    "size_kb": 267.5
+  },
+  {
+    "file": "76.md",
+    "title": "46 – Hedge accounting (IFRS 9) (Part 3)",
+    "size_kb": 232.8
+  },
+  {
+    "file": "77.md",
+    "title": "46 – Hedge accounting (IFRS 9) (Part 4)",
+    "size_kb": 234.3
+  },
+  {
+    "file": "78.md",
+    "title": "47 - Presentation and disclosure of financial instruments (IFRS 9, IFRS 7)",
+    "size_kb": 337.2
+  },
+  {
+    "file": "79.md",
+    "title": "48 - Earnings per share (IAS 33)",
+    "size_kb": 426.1
+  },
+  {
+    "file": "80.md",
+    "title": "49 - Foreign currencies (IAS 21)",
+    "size_kb": 368.8
+  },
+  {
+    "file": "81.md",
+    "title": "50 - Insurance contracts (IFRS 4)",
+    "size_kb": 77.5
+  },
+  {
+    "file": "82.md",
+    "title": "50A - Insurance contracts (IFRS 17) (Part 1)",
+    "size_kb": 924.9
+  },
+  {
+    "file": "83.md",
+    "title": "50A - Insurance contracts (IFRS 17) (Part 2)",
+    "size_kb": 217.2
+  },
+  {
+    "file": "84.md",
+    "title": "50A - Insurance contracts (IFRS 17) (Part 3)",
+    "size_kb": 220.1
+  },
+  {
+    "file": "85.md",
+    "title": "51 - Share capital and reserves (IAS 1, IAS 32, IFRS 9, (IAS 39))",
+    "size_kb": 55.0
+  },
+  {
+    "file": "86.md",
+    "title": "Appendix 1 - Business combinations under common control, transfers of investments within groups and capital re-organisations",
+    "size_kb": 130.7
+  },
+  {
+    "file": "87.md",
+    "title": "Appendix 2 - Preparation of combined and carve out financial statements",
+    "size_kb": 101.5
+  },
+  {
+    "file": "88.md",
+    "title": "Appendix 3 - IBOR Reform Amendments",
+    "size_kb": 63.4
+  }
+]

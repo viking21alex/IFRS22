@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFRS 2022 精读工作台</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/umd/index.min.js"></script>
+<style>
+  :root {
+    --bg: #f3f5f9;
+    --panel: #ffffff;
+    --sidebar-bg: #f8fafc;
+    --border: #e5e7eb;
+    --text: #1e293b;
+    --text-soft: #475569;
+    --muted: #64748b;
+    --accent: #3b82f6;
+    --accent-dark: #2563eb;
+    --accent-soft: #eff6ff;
+    --highlight: #fef08a;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 6px 20px rgba(15, 23, 42, 0.07);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--text); background: var(--bg);
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 精致滚动条 */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* 顶部导航栏 */
+  header {
+    height: 56px; background: var(--panel); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 18px; gap: 12px;
+    flex-shrink: 0; z-index: 20; box-shadow: var(--shadow-sm);
+  }
+  .brand {
+    font-weight: 700; font-size: 15px; white-space: nowrap; color: var(--text);
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .brand-badge {
+    background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
+    font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 600;
+  }
+  .search-wrap {
+    flex: 1; max-width: 540px; display: flex; gap: 6px; margin-left: 8px;
+  }
+  .search-wrap input {
+    flex: 1; padding: 8px 13px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 13px; outline: none; background: #f8fafc; transition: .2s;
+  }
+  .search-wrap input:focus { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+
+  .btn {
+    padding: 7px 13px; border: 1px solid var(--border); background: var(--panel);
+    border-radius: 8px; font-size: 12.5px; font-weight: 500; cursor: pointer;
+    white-space: nowrap; color: var(--text-soft); transition: all .15s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn:hover { background: #f1f5f9; color: var(--text); border-color: #cbd5e1; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-dark); }
+  .header-actions { margin-left: auto; display: flex; gap: 8px; }
+
+  /* 主体布局 */
+  .main { flex: 1; display: flex; overflow: hidden; position: relative; }
+
+  /* 左侧可展开树状目录 */
+  aside {
+    width: 300px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0; transition: width .22s ease;
+  }
+  aside.collapsed { width: 0; overflow: hidden; border-right: none; }
+  .aside-filter { padding: 12px; border-bottom: 1px solid var(--border); background: var(--panel); }
+  .aside-filter input {
+    width: 100%; padding: 7px 11px; border: 1px solid var(--border);
+    border-radius: 7px; font-size: 12.5px; outline: none; background: #f8fafc;
+  }
+  .aside-filter input:focus { background: #fff; border-color: var(--accent); }
+  .catalog-list { flex: 1; overflow-y: auto; padding: 8px; }
+
+  .chap-group { margin-bottom: 4px; }
+  .chap-header {
+    padding: 8px 10px; border-radius: 7px; font-size: 13px; font-weight: 500;
+    cursor: pointer; line-height: 1.4; color: var(--text);
+    display: flex; align-items: flex-start; gap: 6px; transition: .15s;
+  }
+  .chap-header:hover { background: #e2e8f066; }
+  .chap-header.active { background: var(--accent-soft); color: var(--accent-dark); font-weight: 600; }
+  .chap-arrow {
+    font-size: 10px; color: var(--muted); margin-top: 3px;
+    transition: transform .18s; flex-shrink: 0; width: 14px; text-align: center;
+  }
+  .chap-group.expanded .chap-arrow { transform: rotate(90deg); color: var(--accent); }
+
+  .sub-list {
+    display: none; padding-left: 16px; margin: 3px 0 6px 8px;
+    border-left: 1.5px solid #e2e8f0;
+  }
+  .chap-group.expanded .sub-list { display: block; }
+  .sub-item {
+    padding: 6px 10px; border-radius: 6px; font-size: 12.5px; color: var(--text-soft);
+    cursor: pointer; line-height: 1.4; margin-bottom: 2px; transition: .15s;
+  }
+  .sub-item:hover { background: #e2e8f055; color: var(--text); }
+  .sub-item.active {
+    background: #fff; color: var(--accent-dark); font-weight: 600;
+    box-shadow: var(--shadow-sm); border-left: 3px solid var(--accent);
+    padding-left: 7px;
+  }
+
+  /* 双栏工作区 */
+  .workspace { flex: 1; display: flex; overflow: hidden; padding: 14px; gap: 14px; }
+  .pane {
+    flex: 1; overflow-y: auto; background: var(--panel);
+    border-radius: var(--radius); border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm); scroll-behavior: smooth;
+  }
+  #left-pane { padding: 28px 36px 60px; }
+  #right-pane { padding: 20px 24px 60px; background: #fbfcfe; flex: 0.85; }
+  #right-pane.hidden { display: none; }
+
+  /* 独立页面头部面包屑 */
+  .page-breadcrumb {
+    font-size: 12px; color: var(--muted); margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;
+  }
+  .crumb-path { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .crumb-tag {
+    background: var(--accent-soft); color: var(--accent-dark);
+    padding: 2px 8px; border-radius: 5px; font-weight: 600; cursor: pointer;
+  }
+
+  /* 独立页面底部翻页 */
+  .page-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); gap: 12px;
+  }
+  .nav-card {
+    flex: 1; max-width: 48%; padding: 12px 16px; border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: .15s; background: #f8fafc;
+  }
+  .nav-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .nav-card.next { text-align: right; margin-left: auto; }
+  .nav-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .nav-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Markdown 精排样式 */
+  .md-body { max-width: 820px; margin: 0 auto; line-height: 1.78; font-size: 14.5px; color: #263244; }
+  .md-body h1 { font-size: 22px; margin: 0 0 18px; color: #0f172a; line-height: 1.35; }
+  .md-body h2 { font-size: 19px; margin: 0 0 16px; color: #0f172a; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+  .md-body h3 { font-size: 16px; margin: 22px 0 10px; color: #1e293b; }
+  .md-body h4 { font-size: 14.5px; margin: 16px 0 8px; color: #334155; }
+  .md-body p, .md-body li { margin-bottom: 11px; }
+  .md-body ul, .md-body ol { padding-left: 22px; margin-bottom: 14px; }
+  .md-body a { color: var(--accent-dark); text-decoration: none; border-bottom: 1px solid transparent; }
+  .md-body a:hover { border-bottom-color: var(--accent-dark); }
+  .md-body img { max-width: 100%; border-radius: 6px; border: 1px solid var(--border); margin: 10px 0; }
+  .md-body blockquote {
+    border-left: 3px solid var(--accent); background: #f8fafc;
+    padding: 10px 16px; margin: 14px 0; border-radius: 0 6px 6px 0; color: var(--text-soft);
+  }
+  .md-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; display: block; overflow-x: auto; }
+  .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 11px; text-align: left; }
+  .md-body th { background: #f8fafc; font-weight: 600; }
+
+  /* 段落翻译触发器 */
+  .trans-block { position: relative; border-radius: 6px; transition: background .15s; padding: 3px 6px; margin: 0 -6px 10px; }
+  .trans-block:hover { background: #f8fafc; }
+  .trans-btn {
+    position: absolute; right: 6px; top: 4px; opacity: 0;
+    background: var(--accent); color: #fff; border: none; border-radius: 5px;
+    font-size: 11px; padding: 3px 8px; cursor: pointer; transition: opacity .15s; z-index: 5;
+    box-shadow: 0 2px 4px rgba(37,99,235,0.2);
+  }
+  .trans-block:hover .trans-btn { opacity: 1; }
+
+  @keyframes flashHighlight {
+    0% { background: var(--highlight); }
+    70% { background: var(--highlight); }
+    100% { background: transparent; }
+  }
+  .anchor-flash { animation: flashHighlight 2.2s ease-out; border-radius: 6px; }
+
+  /* 右侧译文面板 */
+  .right-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .trans-card {
+    background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 14px 16px; margin-bottom: 12px;
+    font-size: 14px; line-height: 1.75; box-shadow: var(--shadow-sm);
+  }
+  .trans-card-meta {
+    font-size: 11.5px; color: var(--muted); margin-bottom: 6px;
+    display: flex; justify-content: space-between; cursor: pointer;
+  }
+  .trans-card-meta:hover { color: var(--accent-dark); }
+  .empty-tip {
+    text-align: center; color: var(--muted); font-size: 13px;
+    padding: 40px 20px; line-height: 1.7;
+  }
+
+  /* 搜索结果浮层 */
+  .search-modal {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 680px; max-width: 94vw; max-height: 75vh; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-md);
+    display: none; flex-direction: column; z-index: 50;
+  }
+  .search-modal.open { display: flex; }
+  .search-modal-head {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; color: var(--text-soft); font-weight: 500;
+  }
+  .search-results { overflow-y: auto; padding: 8px; }
+  .sr-item { padding: 11px 14px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: .12s; }
+  .sr-item:hover { background: var(--accent-soft); }
+  .sr-chap { font-size: 12px; font-weight: 600; color: var(--accent-dark); margin-bottom: 4px; }
+  .sr-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+
+  /* 设置弹窗 */
+  .modal-mask {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-mask.open { display: flex; }
+  .modal-box { background: var(--panel); width: 430px; max-width: 92vw; border-radius: 12px; padding: 22px; box-shadow: var(--shadow-md); }
+  .modal-box h3 { font-size: 16px; margin-bottom: 16px; }
+  .field { margin-bottom: 13px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
+  .field input { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; outline: none; }
+  .field input:focus { border-color: var(--accent); }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="btn" onclick="toggleSidebar()">☰ 目录</button>
+  <div class="brand" onclick="navigateTo('05.md', 0)">
+    <span>IFRS 2022</span>
+    <span class="brand-badge">精读版</span>
+  </div>
+  <div class="search-wrap">
+    <input id="search-input" type="text" placeholder="搜原文（英文精准/模糊，或输入中文点 AI 扩词检索）..." onkeydown="if(event.key==='Enter') runLocalSearch()">
+    <button class="btn" onclick="runLocalSearch()">本地检索</button>
+    <button class="btn primary" onclick="runAISearch()">AI 扩词</button>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="translateCurrentSection()">✨ 翻译本节</button>
+    <button class="btn" onclick="toggleRightPane()">双栏</button>
+    <button class="btn" onclick="openSettings()">⚙️ API</button>
+  </div>
+</header>
+
+<div class="main">
+  <aside id="sidebar">
+    <div class="aside-filter">
+      <input id="cat-filter" type="text" placeholder="筛选章节 (如 IFRS 15, Leases)..." oninput="renderCatalog()">
+    </div>
+    <div class="catalog-list" id="catalog-list"></div>
+  </aside>
+
+  <div class="workspace">
+    <div class="pane" id="left-pane">
+      <div class="md-body" id="md-content">正在加载目录与索引...</div>
+    </div>
+    <div class="pane" id="right-pane">
+      <div class="right-header">
+        <strong style="font-size:14px; color:#0f172a;">AI 中文译文对照</strong>
+        <button class="btn" style="padding:4px 9px;font-size:12px;" onclick="clearCurrentTranslations()">清空视图</button>
+      </div>
+      <div id="trans-list">
+        <div class="empty-tip">悬停在左侧任意段落点击「译」，<br>或点击顶部「✨ 翻译本节」批量翻译当前独立页。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 搜索结果浮层 -->
+  <div class="search-modal" id="search-modal">
+    <div class="search-modal-head">
+      <span id="search-status">搜索结果</span>
+      <button class="btn" style="padding:4px 10px;" onclick="closeSearch()">关闭</button>
+    </div>
+    <div class="search-results" id="search-results"></div>
+  </div>
+</div>
+
+<!-- API 设置弹窗 -->
+<div class="modal-mask" id="settings-modal">
+  <div class="modal-box">
+    <h3>API 设置（仅保存在本地浏览器）</h3>
+    <div class="field">
+      <label>API Base URL（兼容 OpenAI 格式）</label>
+      <input id="cfg-url" placeholder="https://api.deepseek.com/v1">
+    </div>
+    <div class="field">
+      <label>API Key</label>
+      <input id="cfg-key" type="password" placeholder="sk-...">
+    </div>
+    <div class="field">
+      <label>模型名称</label>
+      <input id="cfg-model" placeholder="deepseek-chat">
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeSettings()">取消</button>
+      <button class="btn primary" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let catalog = [];
+let miniSearch = null;
+let currentFile = '';
+let currentSecIdx = 0;
+const chapterCache = new Map(); // file -> { title, sections: [{title, html}], anchorMap: Map }
+const expandedFiles = new Set();
+
+function getConfig() {
+  return {
+    url: localStorage.getItem('ifrs_api_url') || 'https://api.deepseek.com/v1',
+    key: localStorage.getItem('ifrs_api_key') || '',
+    model: localStorage.getItem('ifrs_api_model') || 'deepseek-chat'
+  };
+}
+function openSettings() {
+  const c = getConfig();
+  document.getElementById('cfg-url').value = c.url;
+  document.getElementById('cfg-key').value = c.key;
+  document.getElementById('cfg-model').value = c.model;
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+function saveSettings() {
+  localStorage.setItem('ifrs_api_url', document.getElementById('cfg-url').value.trim().replace(/\/$/, ''));
+  localStorage.setItem('ifrs_api_key', document.getElementById('cfg-key').value.trim());
+  localStorage.setItem('ifrs_api_model', document.getElementById('cfg-model').value.trim());
+  closeSettings();
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+function toggleRightPane() { document.getElementById('right-pane').classList.toggle('hidden'); }
+function closeSearch() { document.getElementById('search-modal').classList.remove('open'); }
+
+async function init() {
+  try {
+    const catRes = await fetch('catalog.json');
+    catalog = await catRes.json();
+    renderCatalog();
+
+    window.addEventListener('hashchange', handleHash);
+    if (location.hash) handleHash();
+    else navigateTo('07.md', 0);
+
+    fetch('search-index.json').then(r => r.json()).then(docs => {
+      miniSearch = new MiniSearch({
+        fields: ['text', 'chapter'],
+        storeFields: ['file', 'chapter', 'anchor', 'text'],
+        searchOptions: { fuzzy: 0.2, prefix: true }
+      });
+      miniSearch.addAll(docs);
+    });
+  } catch (e) {
+    document.getElementById('md-content').innerHTML =
+      `<p style="color:#dc2626">加载失败：请确认已运行 <code>python build_index.py</code>，并通过本地服务器或 GitHub Pages 打开。</p>`;
+  }
+}
+
+// 解析单章 Markdown 并按 H2 切分为独立页面
+async function ensureChapterLoaded(file) {
+  if (chapterCache.has(file)) return chapterCache.get(file);
+
+  const res = await fetch(file);
+  const mdText = await res.text();
+  const temp = document.createElement('div');
+  temp.innerHTML = marked.parse(mdText);
+
+  const catItem = catalog.find(c => c.file === file);
+  const chapTitle = catItem ? catItem.title : file;
+
+  const sections = [];
+  const anchorMap = new Map();
+
+  // 收集子节点并按 H2 切分
+  const nodes = Array.from(temp.childNodes);
+  let curTitle = '📑 本章目录概览';
+  let curNodes = [];
+  let pendingAnchors = [];
+
+  const isAnchorOnly = (node) => {
+    if (node.nodeType !== 1) return false;
+    if (node.tagName === 'A' && node.id && !node.textContent.trim()) return true;
+    if (node.tagName === 'P' && !node.textContent.trim() && node.querySelector('a[id]')) return true;
+    return false;
+  };
+
+  const flushSection = () => {
+    if (!curNodes.length) return;
+    const wrap = document.createElement('div');
+    curNodes.forEach(n => wrap.appendChild(n));
+    const idx = sections.length;
+    wrap.querySelectorAll('[id]').forEach(el => anchorMap.set(el.id, idx));
+    sections.push({ title: curTitle, html: wrap.innerHTML });
+  };
+
+  for (const node of nodes) {
+    if (node.nodeType === 3 && !node.textContent.trim()) continue;
+    // 跳过冗余的 [返回目录](README.md) 段落
+    if (node.nodeType === 1 && node.tagName === 'P' && node.textContent.trim() === '返回目录') continue;
+
+    if (isAnchorOnly(node)) {
+      pendingAnchors.push(node);
+      continue;
+    }
+
+    if (node.nodeType === 1 && node.tagName === 'H2') {
+      flushSection();
+      curTitle = node.textContent.trim();
+      curNodes = [...pendingAnchors, node];
+      pendingAnchors = [];
+    } else {
+      if (pendingAnchors.length) {
+        curNodes.push(...pendingAnchors);
+        pendingAnchors = [];
+      }
+      curNodes.push(node);
+    }
+  }
+  if (pendingAnchors.length) curNodes.push(...pendingAnchors);
+  flushSection();
+
+  if (!sections.length) {
+    sections.push({ title: chapTitle, html: temp.innerHTML });
+  }
+
+  const parsed = { title: chapTitle, sections, anchorMap };
+  chapterCache.set(file, parsed);
+  return parsed;
+}
+
+// 渲染左侧可展开树状目录
+function renderCatalog() {
+  const kw = document.getElementById('cat-filter').value.trim().toLowerCase();
+  const list = document.getElementById('catalog-list');
+  const filtered = catalog.filter(c => c.title.toLowerCase().includes(kw) || c.file.includes(kw));
+
+  list.innerHTML = filtered.map(c => {
+    const isExpanded = expandedFiles.has(c.file);
+    const isCurrentChap = c.file === currentFile;
+    const cached = chapterCache.get(c.file);
+    let subHtml = '';
+    if (isExpanded && cached) {
+      subHtml = `<div class="sub-list">` + cached.sections.map((s, idx) => `
+        <div class="sub-item ${isCurrentChap && idx === currentSecIdx ? 'active' : ''}"
+             onclick="navigateTo('${c.file}', ${idx})">${escapeHtml(s.title)}</div>
+      `).join('') + `</div>`;
+    } else if (isExpanded) {
+      subHtml = `<div class="sub-list"><div class="sub-item" style="color:var(--muted)">加载小节目录...</div></div>`;
+    }
+
+    return `
+      <div class="chap-group ${isExpanded ? 'expanded' : ''}">
+        <div class="chap-header ${isCurrentChap ? 'active' : ''}" onclick="toggleChapter('${c.file}')">
+          <span class="chap-arrow">▶</span>
+          <span>${escapeHtml(c.title)}</span>
+        </div>
+        ${subHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+async function toggleChapter(file) {
+  if (expandedFiles.has(file)) {
+    expandedFiles.delete(file);
+    renderCatalog();
+  } else {
+    expandedFiles.add(file);
+    renderCatalog();
+    await ensureChapterLoaded(file);
+    renderCatalog();
+    if (file !== currentFile) navigateTo(file, 0);
+  }
+}
+
+// 统一路由：支持 (file, secIdx) 或 (file, 'anchorId')
+function navigateTo(file, target = 0) {
+  const hash = typeof target === 'number'
+    ? `#${file}@${target}`
+    : (target ? `#${file}#${target}` : `#${file}@0`);
+  if (location.hash === hash) handleHash();
+  else location.hash = hash;
+}
+
+async function handleHash() {
+  const raw = location.hash.slice(1);
+  if (!raw) return;
+
+  let file = '', secIdx = 0, anchor = '';
+  if (raw.includes('#')) {
+    [file, anchor] = raw.split('#');
+  } else if (raw.includes('@')) {
+    const parts = raw.split('@');
+    file = parts[0];
+    secIdx = parseInt(parts[1], 10) || 0;
+  } else {
+    file = raw;
+  }
+
+  if (!file || !file.endsWith('.md')) return;
+
+  const chap = await ensureChapterLoaded(file);
+  if (anchor && chap.anchorMap.has(anchor)) {
+    secIdx = chap.anchorMap.get(anchor);
+  }
+  if (secIdx < 0 || secIdx >= chap.sections.length) secIdx = 0;
+
+  currentFile = file;
+  currentSecIdx = secIdx;
+  expandedFiles.add(file);
+  renderCatalog();
+  renderSectionPage(chap, secIdx, anchor);
+}
+
+// 渲染单个独立小节页面
+function renderSectionPage(chap, secIdx, anchor = '') {
+  const sec = chap.sections[secIdx];
+  const container = document.getElementById('md-content');
+
+  const prevSec = secIdx > 0 ? chap.sections[secIdx - 1] : null;
+  const nextSec = secIdx < chap.sections.length - 1 ? chap.sections[secIdx + 1] : null;
+
+  const navHtml = `
+    <div class="page-nav">
+      ${prevSec ? `<div class="nav-card" onclick="navigateTo('${currentFile}', ${secIdx - 1})"><div class="nav-label">← 上一节</div><div class="nav-title">${escapeHtml(prevSec.title)}</div></div>` : '<div></div>'}
+      ${nextSec ? `<div class="nav-card next" onclick="navigateTo('${currentFile}', ${secIdx + 1})"><div class="nav-label">下一节 →</div><div class="nav-title">${escapeHtml(nextSec.title)}</div></div>` : ''}
+    </div>
+  `;
+
+  container.innerHTML = `
+    <div class="page-breadcrumb">
+      <div class="crumb-path">
+        <span class="crumb-tag" onclick="navigateTo('${currentFile}', 0)">${escapeHtml(chap.title)}</span>
+        <span>/</span>
+        <span>${escapeHtml(sec.title)}</span>
+      </div>
+      <span>${secIdx + 1} / ${chap.sections.length}</span>
+    </div>
+    <div id="sec-body">${sec.html}</div>
+    ${navHtml}
+  `;
+
+  document.getElementById('left-pane').scrollTop = 0;
+  attachTranslateButtons(document.getElementById('sec-body'));
+  renderCachedTranslations();
+
+  if (anchor) setTimeout(() => scrollToAnchor(anchor), 60);
+}
+
+// 拦截所有内部链接，跨章/跨独立小节精准跳转
+document.getElementById('md-content').addEventListener('click', (e) => {
+  const a = e.target.closest('a[href]');
+  if (!a) return;
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('http://') || href.startsWith('https://')) return;
+
+  e.preventDefault();
+  if (href === 'README.md') { navigateTo('05.md', 0); return; }
+
+  const [targetFile, targetAnchor] = href.split('#');
+  if (targetFile && targetFile.endsWith('.md')) {
+    navigateTo(targetFile, targetAnchor || 0);
+  } else if (targetAnchor) {
+    navigateTo(currentFile, targetAnchor);
+  }
+});
+
+function scrollToAnchor(anchor) {
+  const el = document.getElementById(anchor);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const target = el.nextElementSibling || el.parentElement;
+  if (target) {
+    target.classList.remove('anchor-flash');
+    void target.offsetWidth;
+    target.classList.add('anchor-flash');
+  }
+}
+
+// 段落翻译
+function attachTranslateButtons(container) {
+  const blocks = container.querySelectorAll('p, h2, h3, h4, blockquote');
+  let idx = 0;
+  blocks.forEach(el => {
+    const text = el.innerText.trim();
+    if (text.length < 15) return;
+    const bid = `${currentFile}_s${currentSecIdx}_b${idx++}`;
+    el.dataset.bid = bid;
+    el.classList.add('trans-block');
+    const btn = document.createElement('button');
+    btn.className = 'trans-btn';
+    btn.textContent = '译';
+    btn.onclick = (e) => { e.stopPropagation(); translateBlock(bid, text); };
+    el.appendChild(btn);
+  });
+}
+
+async function translateBlock(bid, sourceText) {
+  const cacheKey = `tr_${bid}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) { upsertTranslationCard(bid, sourceText, cached); return; }
+
+  const cfg = getConfig();
+  if (!cfg.key) { openSettings(); alert('请先填入 API Key'); return; }
+
+  upsertTranslationCard(bid, sourceText, '翻译中...');
+  try {
+    const res = await fetch(`${cfg.url}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.key}` },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role: 'system', content: '你是资深国际财务报告准则(IFRS)审计专家。请将以下英文准则原文精准翻译为专业、通顺的中文会计术语，保留原有的段落编号（如 1.1、FAQ 等），不要添加额外解释。' },
+          { role: 'user', content: sourceText }
+        ],
+        temperature: 0.1
+      })
+    });
+    const data = await res.json();
+    const translated = data.choices?.[0]?.message?.content?.trim() || '翻译返回为空';
+    localStorage.setItem(cacheKey, translated);
+    upsertTranslationCard(bid, sourceText, translated);
+  } catch (err) {
+    upsertTranslationCard(bid, sourceText, '翻译失败：' + err.message);
+  }
+}
+
+function upsertTranslationCard(bid, sourceText, zhText) {
+  const list = document.getElementById('trans-list');
+  const tip = list.querySelector('.empty-tip');
+  if (tip) tip.remove();
+
+  let card = document.getElementById(`card_${bid}`);
+  if (!card) {
+    card = document.createElement('div');
+    card.id = `card_${bid}`;
+    card.className = 'trans-card';
+    list.appendChild(card);
+  }
+  const snippet = escapeHtml(sourceText.slice(0, 46)) + '...';
+  card.innerHTML = `
+    <div class="trans-card-meta" onclick="focusLeftBlock('${bid}')">
+      <span>定位原文：${snippet}</span>
+      <span>↗</span>
+    </div>
+    <div>${escapeHtml(zhText).replace(/\n/g, '<br>')}</div>
+  `;
+}
+
+function focusLeftBlock(bid) {
+  const el = document.querySelector(`[data-bid="${bid}"]`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('anchor-flash');
+    void el.offsetWidth;
+    el.classList.add('anchor-flash');
+  }
+}
+
+function renderCachedTranslations() {
+  const list = document.getElementById('trans-list');
+  list.innerHTML = '';
+  let count = 0;
+  document.querySelectorAll('.trans-block').forEach(el => {
+    const bid = el.dataset.bid;
+    const cached = localStorage.getItem(`tr_${bid}`);
+    if (cached) {
+      upsertTranslationCard(bid, el.innerText.replace(/译$/, '').trim(), cached);
+      count++;
+    }
+  });
+  if (count === 0) {
+    list.innerHTML = '<div class="empty-tip">悬停在左侧任意段落点击「译」，<br>或点击顶部「✨ 翻译本节」批量翻译当前独立页。</div>';
+  }
+}
+
+function clearCurrentTranslations() {
+  document.getElementById('trans-list').innerHTML = '<div class="empty-tip">已清空当前视图（本地缓存仍保留，点击「译」可秒出）。</div>';
+}
+
+// 翻译当前独立小节（单次最多 8 段，防止长小节并发过大）
+async function translateCurrentSection() {
+  const blocks = Array.from(document.querySelectorAll('.trans-block')).slice(0, 8);
+  for (const el of blocks) {
+    await translateBlock(el.dataset.bid, el.innerText.replace(/译$/, '').trim());
+  }
+}
+
+// 检索功能
+function runLocalSearch(customQuery = null, label = '') {
+  if (!miniSearch) { alert('索引仍在后台加载，请稍等 1 秒重试'); return; }
+  const q = (customQuery ?? document.getElementById('search-input').value).trim();
+  if (!q) return;
+  const results = miniSearch.search(q).slice(0, 40);
+  showSearchResults(results, label || `本地检索 "${q}"，命中 ${results.length} 条`);
+}
+
+async function runAISearch() {
+  const q = document.getElementById('search-input').value.trim();
+  if (!q) return;
+  const cfg = getConfig();
+  if (!cfg.key) { openSettings(); alert('AI 扩词检索需要先填写 API Key'); return; }
+
+  document.getElementById('search-modal').classList.add('open');
+  document.getElementById('search-status').textContent = 'AI 正在转为标准 IFRS 英文术语...';
+  document.getElementById('search-results').innerHTML = '';
+
+  try {
+    const res = await fetch(`${cfg.url}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.key}` },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role: 'system', content: '你是 IFRS 检索助手。用户会输入中文或英文会计问题，请只输出 3 到 5 个最核心的 IFRS 英文专业检索词，用空格分隔，不要输出任何标点、解释或序号。' },
+          { role: 'user', content: q }
+        ],
+        temperature: 0.1
+      })
+    });
+    const data = await res.json();
+    const expanded = data.choices?.[0]?.message?.content?.trim() || q;
+    runLocalSearch(expanded, `AI 扩词为 [${expanded}]，本地命中结果：`);
+  } catch (err) {
+    document.getElementById('search-status').textContent = 'AI 检索失败：' + err.message;
+  }
+}
+
+function showSearchResults(results, title) {
+  document.getElementById('search-modal').classList.add('open');
+  document.getElementById('search-status').textContent = title;
+  const box = document.getElementById('search-results');
+  if (!results.length) {
+    box.innerHTML = '<div class="empty-tip">未找到匹配段落</div>';
+    return;
+  }
+  box.innerHTML = results.map(r => `
+    <div class="sr-item" onclick="closeSearch(); navigateTo('${r.file}', '${r.anchor || 0}')">
+      <div class="sr-chap">${escapeHtml(r.chapter)}</div>
+      <div class="sr-text">${escapeHtml(r.text.slice(0, 220))}...</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+}
+
+init();
+</script>
+</body>
+</html>
