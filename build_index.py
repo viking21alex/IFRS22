@@ -4,6 +4,7 @@ import json
 from collections import Counter
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MDCN_DIR = os.path.join(BASE_DIR, 'MDCN')
 
 def strip_md_html(text):
     text = re.sub(r'<[^>]+>', ' ', text)
@@ -34,52 +35,71 @@ def parse_readme():
             })
     return catalog
 
-def build_search_index(catalog):
+def extract_blocks(fpath, fname, chapter_title, lang, start_id):
     docs = []
-    doc_id = 1
+    doc_id = start_id
     anchor_re = re.compile(r'<a\s+id="([^"]+)"[^>]*></a>')
 
-    for item in catalog:
-        fname = item["file"]
-        fpath = os.path.join(BASE_DIR, fname)
-        if not os.path.exists(fpath):
-            continue
-        with open(fpath, 'r', encoding='utf-8', errors='replace') as f:
-            raw = f.read()
+    with open(fpath, 'r', encoding='utf-8', errors='replace') as f:
+        raw = f.read()
 
-        # 按空行切分段落，记录最近的有效锚点
-        blocks = re.split(r'\n\s*\n', raw)
+    # 按 H2 粗分小节索引，确保中文版即使没有 <a id> 也能精准定位到小节
+    h2_parts = re.split(r'(?m)^(?=##\s+)', raw)
+    for sec_idx, part in enumerate(h2_parts):
+        blocks = re.split(r'\n\s*\n', part)
         current_anchor = ""
         for block in blocks:
             anchors = anchor_re.findall(block)
             if anchors:
                 current_anchor = anchors[-1]
-            # 跳过纯目录列表项（避免搜索结果被开头目录刷屏）
             if re.match(r'^\s*-\s+\[.*?\]\(\d+\.md#', block):
                 continue
             clean = strip_md_html(block)
-            if len(clean) < 25:
+            min_len = 12 if lang == 'zh' else 25
+            if len(clean) < min_len:
                 continue
             docs.append({
                 "id": doc_id,
+                "lang": lang,
                 "file": fname,
-                "chapter": item["title"],
+                "sec": sec_idx,
+                "chapter": chapter_title,
                 "anchor": current_anchor,
-                "text": clean[:600]  # 截断超长块以控制索引体积
+                "text": clean[:450]
             })
             doc_id += 1
-    return docs
+    return docs, doc_id
+
+def build_search_index(catalog):
+    all_docs = []
+    doc_id = 1
+    zh_count = 0
+
+    for item in catalog:
+        fname = item["file"]
+        en_path = os.path.join(BASE_DIR, fname)
+        if os.path.exists(en_path):
+            docs, doc_id = extract_blocks(en_path, fname, item["title"], "en", doc_id)
+            all_docs.extend(docs)
+
+        zh_path = os.path.join(MDCN_DIR, fname)
+        if os.path.exists(zh_path):
+            docs, doc_id = extract_blocks(zh_path, fname, item["title"], "zh", doc_id)
+            all_docs.extend(docs)
+            zh_count += 1
+
+    print(f"已扫描英文 {len(catalog)} 章，中文(MDCN) {zh_count} 章")
+    return all_docs
 
 if __name__ == '__main__':
     print("正在解析目录...")
     catalog = parse_readme()
     with open(os.path.join(BASE_DIR, 'catalog.json'), 'w', encoding='utf-8') as f:
         json.dump(catalog, f, ensure_ascii=False, indent=2)
-    print(f"已生成 catalog.json（共 {len(catalog)} 个章节文件）")
 
-    print("正在构建全文检索索引...")
+    print("正在构建中英文双语全文检索索引...")
     docs = build_search_index(catalog)
     with open(os.path.join(BASE_DIR, 'search-index.json'), 'w', encoding='utf-8') as f:
         json.dump(docs, f, ensure_ascii=False)
     size_mb = os.path.getsize(os.path.join(BASE_DIR, 'search-index.json')) / (1024 * 1024)
-    print(f"已生成 search-index.json（共 {len(docs)} 条段落索引，体积 {size_mb:.2f} MB）")
+    print(f"完成！已生成 search-index.json（共 {len(docs)} 条中英段落索引，体积 {size_mb:.2f} MB）")
