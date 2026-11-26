@@ -373,6 +373,93 @@
   .field input { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; outline: none; }
   .field input:focus { border-color: var(--accent); }
   .modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  /* 仅本人可见控制（配置 GitHub Token 后激活） */
+  .owner-only { display: none !important; }
+  body.owner-mode .owner-only { display: inline-flex !important; }
+  body.owner-mode .owner-only-block { display: block !important; }
+  .owner-only-block { display: none !important; }
+
+  .sync-pill {
+    font-size: 11.5px; padding: 3px 8px; border-radius: 6px;
+    background: #f1f5f9; color: var(--muted); white-space: nowrap;
+  }
+  .sync-pill.ok { background: var(--zh-soft); color: var(--zh-dark); }
+  .sync-pill.err { background: #fef2f2; color: #dc2626; }
+
+  /* 段落个人备注触发器与行内卡片 */
+  .sync-block { position: relative; }
+  .note-trigger-btn {
+    position: absolute; right: 4px; top: 3px; opacity: 0;
+    background: #fff; border: 1px solid #cbd5e1; color: var(--text-soft);
+    border-radius: 5px; font-size: 11px; padding: 1px 6px; cursor: pointer;
+    transition: opacity .15s, background .15s; z-index: 6;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  body.owner-mode .sync-block:hover > .note-trigger-btn { opacity: 1; }
+  .note-trigger-btn:hover { background: var(--accent-soft); color: var(--accent-dark); border-color: #93c5fd; }
+
+  .inline-note-card {
+    margin-top: 6px; padding: 8px 12px; background: #fffbeb;
+    border: 1px solid #fde68a; border-left: 3px solid #f59e0b;
+    border-radius: 6px; font-size: 13px; color: #78350f; line-height: 1.6;
+    cursor: pointer; white-space: pre-wrap;
+  }
+  .inline-note-card:hover { background: #fef3c7; }
+  .inline-note-label { font-size: 11px; font-weight: 700; color: #b45309; margin-bottom: 2px; display: flex; justify-content: space-between; }
+
+  /* 划词悬窗收藏按钮 */
+  .dp-fav-btn {
+    border: 1px solid #fcd34d; background: #fffbeb; color: #b45309;
+    border-radius: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 600;
+    cursor: pointer; transition: .15s; margin-left: auto;
+  }
+  .dp-fav-btn:hover { background: #fef3c7; }
+  .dp-fav-btn.saved { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+
+  /* 笔记 / 生词本抽屉 */
+  .nb-drawer {
+    position: absolute; top: 12px; right: 12px; width: 420px; max-width: 92vw;
+    max-height: calc(100% - 24px); background: var(--panel);
+    border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: var(--shadow-md); display: none; flex-direction: column; z-index: 55;
+  }
+  .nb-drawer.open { display: flex; }
+  .nb-tabs { display: flex; border-bottom: 1px solid var(--border); background: #f8fafc; padding: 0 12px; gap: 4px; }
+  .nb-tab {
+    padding: 9px 12px; font-size: 12.5px; font-weight: 600; color: var(--muted);
+    cursor: pointer; border-bottom: 2px solid transparent; transition: .15s;
+  }
+  .nb-tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+  .nb-toolbar {
+    padding: 8px 12px; border-bottom: 1px solid #f1f5f9;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .nb-toolbar input {
+    flex: 1; padding: 6px 10px; border: 1px solid var(--border);
+    border-radius: 6px; font-size: 12.5px; outline: none; background: #f8fafc;
+  }
+  .nb-list { flex: 1; overflow-y: auto; padding: 10px 12px 16px; }
+  .nb-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 8px; transition: .12s;
+  }
+  .nb-card:hover { border-color: #cbd5e1; box-shadow: var(--shadow-sm); }
+  .nb-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .nb-word { font-size: 14.5px; font-weight: 700; color: #0f172a; }
+  .nb-meta { font-size: 11.5px; color: var(--accent-dark); cursor: pointer; margin-top: 6px; display: inline-block; }
+  .nb-meta:hover { text-decoration: underline; }
+  .nb-del { border: none; background: transparent; color: #94a3b8; cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 4px; }
+  .nb-del:hover { background: #fee2e2; color: #dc2626; }
+
+  .modal-box textarea {
+    width: 100%; min-height: 110px; padding: 9px 11px; border: 1px solid var(--border);
+    border-radius: 7px; font-size: 13px; font-family: inherit; outline: none; resize: vertical;
+  }
+  .modal-box textarea:focus { border-color: var(--accent); }
+  .settings-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  .settings-sub { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+
 </style>
 </head>
 <body>
@@ -384,11 +471,13 @@
     <span class="brand-badge">中英双栏</span>
   </div>
   <div class="header-actions">
+    <span class="sync-pill owner-only" id="gh-sync-status" title="GitHub 同步状态">☁️ 就绪</span>
+    <button class="btn owner-only" id="nb-toggle-btn" onclick="toggleNotebook()">📒 笔记/生词</button>
     <button class="btn" id="toc-toggle-btn" onclick="togglePageTOC()">📑 本页目录 (0)</button>
     <button class="btn active-green" id="vocab-toggle-btn" onclick="toggleVocabMode()" title="开启后，在左侧英文区选中单词将弹出音标、发音与中文释义">📖 划词学习: 开</button>
     <button class="btn active-toggle" id="sync-scroll-btn" onclick="toggleSyncScroll()">🔗 同步滚动</button>
     <button class="btn" onclick="toggleRightPane()">双栏开关</button>
-    <button class="btn" onclick="openSettings()">⚙️ API</button>
+    <button class="btn" onclick="openSettings()">⚙️ 设置</button>
   </div>
 </header>
 
@@ -446,6 +535,27 @@
       <div class="toc-list" id="toc-list"></div>
     </div>
 
+
+    <!-- 笔记 / 生词本抽屉（仅本人可见） -->
+    <div class="nb-drawer" id="nb-drawer">
+      <div class="toc-head">
+        <strong>📒 我的生词本 & 个人备注</strong>
+        <div class="toc-head-actions">
+          <button class="toc-lang-btn" onclick="syncFromGitHub(true)" title="从 GitHub 拉取最新数据">↻ 刷新</button>
+          <button class="dp-close" onclick="toggleNotebook()" title="收起">✕</button>
+        </div>
+      </div>
+      <div class="nb-tabs">
+        <div class="nb-tab active" id="tab-vocab" onclick="switchNbTab('vocab')">生词本 (<span id="cnt-vocab">0</span>)</div>
+        <div class="nb-tab" id="tab-notes" onclick="switchNbTab('notes')">个人备注 (<span id="cnt-notes">0</span>)</div>
+      </div>
+      <div class="nb-toolbar">
+        <input id="nb-filter" type="text" placeholder="筛选单词、备注或章节..." oninput="renderNotebookList()">
+        <button class="btn" style="padding:5px 9px;font-size:12px;" onclick="exportNotebookMarkdown()">导出 MD</button>
+      </div>
+      <div class="nb-list" id="nb-list"></div>
+    </div>
+
     <!-- 快速搜索结果浮层 -->
     <div class="search-modal" id="search-modal">
       <div class="search-modal-head">
@@ -484,10 +594,42 @@
   <div class="dp-ai-res" id="dp-ai-res"></div>
 </div>
 
-<!-- API 设置弹窗 -->
+<!-- 个人备注编辑弹窗 -->
+<div class="modal-mask" id="note-modal">
+  <div class="modal-box" style="width:480px;">
+    <h3>📝 编辑个人备注</h3>
+    <div id="note-modal-quote" style="font-size:12px;color:var(--muted);background:#f8fafc;padding:8px 10px;border-radius:6px;margin-bottom:10px;max-height:70px;overflow:hidden;"></div>
+    <div class="field">
+      <textarea id="note-modal-text" placeholder="记录实务案例、IPO 审计注意点或自己的理解..."></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="note-del-btn" style="margin-right:auto;color:#dc2626;border-color:#fecaca;" onclick="deleteCurrentNote()">删除备注</button>
+      <button class="btn" onclick="closeNoteModal()">取消</button>
+      <button class="btn primary" onclick="saveCurrentNote()">保存并同步</button>
+    </div>
+  </div>
+</div>
+
+<!-- API 与 GitHub 同步设置弹窗 -->
 <div class="modal-mask" id="settings-modal">
-  <div class="modal-box">
-    <h3>API 设置（用于 AI 语义搜索与会计词汇精讲）</h3>
+  <div class="modal-box" style="width:460px;max-height:90vh;overflow-y:auto;">
+    <h3>⚙️ 系统设置（仅保存在本地浏览器）</h3>
+    <div class="settings-sub">1. GitHub 云端同步（填入后开启个人备注与生词本）</div>
+    <div class="field">
+      <label>GitHub 仓库（格式：用户名/仓库名）</label>
+      <input id="cfg-gh-repo" placeholder="例如：yourname/IFRS22">
+    </div>
+    <div class="field">
+      <label>分支名（默认 main）</label>
+      <input id="cfg-gh-branch" placeholder="main">
+    </div>
+    <div class="field">
+      <label>GitHub Fine-grained Token（仅授予该仓库 Contents 读写权限）</label>
+      <input id="cfg-gh-token" type="password" placeholder="github_pat_...">
+    </div>
+
+    <hr class="settings-divider">
+    <div class="settings-sub">2. AI 接口设置（用于 AI 语义搜索与词汇精讲）</div>
     <div class="field">
       <label>API Base URL（兼容 OpenAI 格式）</label>
       <input id="cfg-url" placeholder="https://api.deepseek.com/v1">
@@ -533,11 +675,24 @@ function getConfig() {
   return {
     url: localStorage.getItem('ifrs_api_url') || 'https://api.deepseek.com/v1',
     key: localStorage.getItem('ifrs_api_key') || '',
-    model: localStorage.getItem('ifrs_api_model') || 'deepseek-chat'
+    model: localStorage.getItem('ifrs_api_model') || 'deepseek-chat',
+    ghRepo: localStorage.getItem('ifrs_gh_repo') || '',
+    ghBranch: localStorage.getItem('ifrs_gh_branch') || 'main',
+    ghToken: localStorage.getItem('ifrs_gh_token') || ''
   };
+}
+function isOwnerMode() {
+  const c = getConfig();
+  return Boolean(c.ghToken && c.ghRepo);
+}
+function applyOwnerMode() {
+  document.body.classList.toggle('owner-mode', isOwnerMode());
 }
 function openSettings() {
   const c = getConfig();
+  document.getElementById('cfg-gh-repo').value = c.ghRepo;
+  document.getElementById('cfg-gh-branch').value = c.ghBranch;
+  document.getElementById('cfg-gh-token').value = c.ghToken;
   document.getElementById('cfg-url').value = c.url;
   document.getElementById('cfg-key').value = c.key;
   document.getElementById('cfg-model').value = c.model;
@@ -545,10 +700,15 @@ function openSettings() {
 }
 function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
 function saveSettings() {
+  localStorage.setItem('ifrs_gh_repo', document.getElementById('cfg-gh-repo').value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, ''));
+  localStorage.setItem('ifrs_gh_branch', document.getElementById('cfg-gh-branch').value.trim() || 'main');
+  localStorage.setItem('ifrs_gh_token', document.getElementById('cfg-gh-token').value.trim());
   localStorage.setItem('ifrs_api_url', document.getElementById('cfg-url').value.trim().replace(/\/$/, ''));
   localStorage.setItem('ifrs_api_key', document.getElementById('cfg-key').value.trim());
   localStorage.setItem('ifrs_api_model', document.getElementById('cfg-model').value.trim());
   closeSettings();
+  applyOwnerMode();
+  if (isOwnerMode()) syncFromGitHub(true);
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
 function toggleRightPane() { document.getElementById('right-col').classList.toggle('hidden'); }
@@ -627,6 +787,9 @@ function zhTokenize(text) {
 
 async function init() {
   updateVocabButton();
+  applyOwnerMode();
+  loadLocalNotebook();
+  if (isOwnerMode()) syncFromGitHub(false);
   try {
     const catRes = await fetch('catalog.json');
     catalog = await catRes.json();
@@ -707,10 +870,12 @@ async function openDictPopover(word, rect) {
   currentDictAudio = { us: '', uk: '' };
 
   document.getElementById('dp-word').textContent = word;
+  const isSaved = Boolean(vocabData[word.toLowerCase()]);
   document.getElementById('dp-phonetics').innerHTML = `
     <span class="dp-ipa" id="dp-ipa-text">获取音标中...</span>
     <button class="dp-audio-btn" onclick="playPronunciation('us', this)">🔊 美</button>
     <button class="dp-audio-btn" onclick="playPronunciation('uk', this)">🔊 英</button>
+    <button class="dp-fav-btn owner-only ${isSaved ? 'saved' : ''}" id="dp-fav-btn" onclick="toggleSaveVocab()">${isSaved ? '★ 已收藏' : '☆ 收藏'}</button>
   `;
   document.getElementById('dp-zh').innerHTML = '<span style="color:var(--muted)">查询中文释义中...</span>';
   document.getElementById('dp-en-def').style.display = 'none';
@@ -1116,6 +1281,7 @@ function renderDualSection(en, zh, secIdx, anchor = '') {
   document.getElementById('right-pane').scrollTop = 0;
 
   bindSmartSyncHighlighting();
+  mountInlineNotes();
   buildPageTOC();
 
   if (pendingLocate) {
@@ -1633,6 +1799,350 @@ function escapeHtml(str) {
 }
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/* ==================== GitHub 云端同步 + 个人备注 + 生词本 ==================== */
+let notesData = {};
+let vocabData = {};
+let ghSha = { notes: null, vocab: null };
+let activeNbTab = 'vocab';
+let editingNoteCtx = null;
+
+function setSyncStatus(text, type = '') {
+  const el = document.getElementById('gh-sync-status');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'sync-pill owner-only' + (type ? ' ' + type : '');
+}
+
+function loadLocalNotebook() {
+  try { notesData = JSON.parse(localStorage.getItem('ifrs_notes_data') || '{}'); } catch { notesData = {}; }
+  try { vocabData = JSON.parse(localStorage.getItem('ifrs_vocab_data') || '{}'); } catch { vocabData = {}; }
+  updateNotebookCounts();
+}
+
+function saveLocalNotebook() {
+  try {
+    localStorage.setItem('ifrs_notes_data', JSON.stringify(notesData));
+    localStorage.setItem('ifrs_vocab_data', JSON.stringify(vocabData));
+  } catch {}
+  updateNotebookCounts();
+}
+
+function updateNotebookCounts() {
+  const cv = document.getElementById('cnt-vocab');
+  const cn = document.getElementById('cnt-notes');
+  if (cv) cv.textContent = Object.keys(vocabData).length;
+  if (cn) cn.textContent = Object.keys(notesData).length;
+}
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+
+function base64ToUtf8(b64) {
+  const bin = atob(b64.replace(/\s/g, ''));
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+async function ghFetchJson(path) {
+  const c = getConfig();
+  const url = `https://api.github.com/repos/${c.ghRepo}/contents/${path}?ref=${encodeURIComponent(c.ghBranch)}&_t=${Date.now()}`;
+  const res = await fetch(url, {
+    headers: { 'Authorization': `Bearer ${c.ghToken}`, 'Accept': 'application/vnd.github+json' }
+  });
+  if (res.status === 404) return { data: {}, sha: null };
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  const parsed = JSON.parse(base64ToUtf8(json.content || '') || '{}');
+  return { data: parsed, sha: json.sha };
+}
+
+async function ghPutJson(path, dataObj, shaKey, commitMsg, retry = true) {
+  if (!isOwnerMode()) return;
+  const c = getConfig();
+  setSyncStatus('☁️ 同步中...');
+  const url = `https://api.github.com/repos/${c.ghRepo}/contents/${path}`;
+  const body = {
+    message: commitMsg,
+    content: utf8ToBase64(JSON.stringify(dataObj, null, 2)),
+    branch: c.ghBranch
+  };
+  if (ghSha[shaKey]) body.sha = ghSha[shaKey];
+
+  try {
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${c.ghToken}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if (res.status === 409 && retry) {
+      const latest = await ghFetchJson(path);
+      ghSha[shaKey] = latest.sha;
+      return ghPutJson(path, dataObj, shaKey, commitMsg, false);
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const out = await res.json();
+    ghSha[shaKey] = out.content?.sha || ghSha[shaKey];
+    setSyncStatus('☁️ 已同步 ✓', 'ok');
+  } catch (err) {
+    console.error('GitHub sync error:', err);
+    setSyncStatus('☁️ 同步失败', 'err');
+  }
+}
+
+async function syncFromGitHub(showFeedback = false) {
+  if (!isOwnerMode()) return;
+  setSyncStatus('☁️ 拉取中...');
+  try {
+    const [nRes, vRes] = await Promise.all([
+      ghFetchJson('data/notes.json'),
+      ghFetchJson('data/vocab.json')
+    ]);
+    ghSha.notes = nRes.sha;
+    ghSha.vocab = vRes.sha;
+    notesData = nRes.data || {};
+    vocabData = vRes.data || {};
+    saveLocalNotebook();
+    mountInlineNotes();
+    if (document.getElementById('nb-drawer').classList.contains('open')) renderNotebookList();
+    setSyncStatus('☁️ 已同步 ✓', 'ok');
+  } catch (err) {
+    console.error('GitHub pull error:', err);
+    setSyncStatus('☁️ 拉取失败', 'err');
+    if (showFeedback) alert('从 GitHub 拉取失败，请检查仓库名（用户名/仓库名）、分支名和 Token 权限：' + err.message);
+  }
+}
+
+/* --- 个人备注逻辑 --- */
+function getStableNoteKey(el, idx) {
+  const keys = getBlockSyncKeys(el);
+  const sub = keys.length ? keys[0] : `idx_${idx}`;
+  return `${currentFile}::${currentSecIdx}::${sub}`;
+}
+
+function mountInlineNotes() {
+  const L = currentSync.L || [];
+  L.forEach((el, idx) => {
+    el.querySelectorAll(':scope > .note-trigger-btn, :scope > .inline-note-card').forEach(n => n.remove());
+    const nKey = getStableNoteKey(el, idx);
+    el.dataset.noteKey = nKey;
+
+    const btn = document.createElement('button');
+    btn.className = 'note-trigger-btn';
+    btn.textContent = notesData[nKey] ? '📝 改备注' : '📝 备注';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      openNoteModal(nKey, el.innerText.replace(/📝.*$/, '').trim().slice(0, 120));
+    };
+    el.appendChild(btn);
+
+    if (notesData[nKey] && isOwnerMode()) {
+      const card = document.createElement('div');
+      card.className = 'inline-note-card';
+      card.innerHTML = `<div class="inline-note-label"><span>📝 个人备注</span><span>${escapeHtml(notesData[nKey].time || '')}</span></div>${escapeHtml(notesData[nKey].text)}`;
+      card.onclick = (e) => {
+        e.stopPropagation();
+        openNoteModal(nKey, notesData[nKey].quote || '');
+      };
+      el.appendChild(card);
+    }
+  });
+}
+
+function openNoteModal(noteKey, quote) {
+  const existing = notesData[noteKey];
+  const chapObj = enCache.get(currentFile);
+  editingNoteCtx = {
+    key: noteKey,
+    quote: existing?.quote || quote,
+    file: currentFile,
+    secIdx: currentSecIdx,
+    chapter: chapObj ? chapObj.title : currentFile
+  };
+  document.getElementById('note-modal-quote').textContent = '原文摘录：' + editingNoteCtx.quote;
+  document.getElementById('note-modal-text').value = existing ? existing.text : '';
+  document.getElementById('note-del-btn').style.display = existing ? 'inline-flex' : 'none';
+  document.getElementById('note-modal').classList.add('open');
+  setTimeout(() => document.getElementById('note-modal-text').focus(), 50);
+}
+
+function closeNoteModal() {
+  document.getElementById('note-modal').classList.remove('open');
+  editingNoteCtx = null;
+}
+
+function saveCurrentNote() {
+  if (!editingNoteCtx) return;
+  const text = document.getElementById('note-modal-text').value.trim();
+  if (!text) { deleteCurrentNote(); return; }
+  notesData[editingNoteCtx.key] = {
+    text,
+    quote: editingNoteCtx.quote,
+    file: editingNoteCtx.file,
+    secIdx: editingNoteCtx.secIdx,
+    chapter: editingNoteCtx.chapter,
+    time: new Date().toLocaleDateString('zh-CN')
+  };
+  saveLocalNotebook();
+  mountInlineNotes();
+  if (document.getElementById('nb-drawer').classList.contains('open')) renderNotebookList();
+  closeNoteModal();
+  ghPutJson('data/notes.json', notesData, 'notes', `Update note in ${editingNoteCtx.file}`);
+}
+
+function deleteCurrentNote() {
+  if (!editingNoteCtx) return;
+  const k = editingNoteCtx.key;
+  delete notesData[k];
+  saveLocalNotebook();
+  mountInlineNotes();
+  if (document.getElementById('nb-drawer').classList.contains('open')) renderNotebookList();
+  closeNoteModal();
+  ghPutJson('data/notes.json', notesData, 'notes', `Delete note ${k}`);
+}
+
+/* --- 生词本逻辑 --- */
+function toggleSaveVocab() {
+  const word = currentDictWord;
+  if (!word) return;
+  const key = word.toLowerCase();
+  const btn = document.getElementById('dp-fav-btn');
+
+  if (vocabData[key]) {
+    delete vocabData[key];
+    if (btn) { btn.classList.remove('saved'); btn.textContent = '☆ 收藏'; }
+  } else {
+    const ipa = document.getElementById('dp-ipa-text')?.textContent || '';
+    const zh = document.getElementById('dp-zh')?.innerText.trim() || '';
+    const chapObj = enCache.get(currentFile);
+    vocabData[key] = {
+      word,
+      ipa: ipa.includes('发音') ? '' : ipa,
+      zh,
+      file: currentFile,
+      secIdx: currentSecIdx,
+      chapter: chapObj ? chapObj.title : currentFile,
+      time: new Date().toLocaleDateString('zh-CN')
+    };
+    if (btn) { btn.classList.add('saved'); btn.textContent = '★ 已收藏'; }
+  }
+  saveLocalNotebook();
+  if (document.getElementById('nb-drawer').classList.contains('open')) renderNotebookList();
+  ghPutJson('data/vocab.json', vocabData, 'vocab', `Update vocab: ${word}`);
+}
+
+/* --- 抽屉界面与导出 --- */
+function toggleNotebook() {
+  const drawer = document.getElementById('nb-drawer');
+  const btn = document.getElementById('nb-toggle-btn');
+  const isOpen = drawer.classList.toggle('open');
+  btn.classList.toggle('active-toggle', isOpen);
+  if (isOpen) {
+    document.getElementById('toc-drawer').classList.remove('open');
+    document.getElementById('toc-toggle-btn').classList.remove('active-toggle');
+    renderNotebookList();
+  }
+}
+
+function switchNbTab(tab) {
+  activeNbTab = tab;
+  document.getElementById('tab-vocab').classList.toggle('active', tab === 'vocab');
+  document.getElementById('tab-notes').classList.toggle('active', tab === 'notes');
+  renderNotebookList();
+}
+
+function renderNotebookList() {
+  const kw = (document.getElementById('nb-filter')?.value || '').trim().toLowerCase();
+  const listEl = document.getElementById('nb-list');
+
+  if (activeNbTab === 'vocab') {
+    const items = Object.entries(vocabData)
+      .filter(([k, v]) => !kw || k.includes(kw) || (v.zh || '').toLowerCase().includes(kw) || (v.chapter || '').toLowerCase().includes(kw))
+      .reverse();
+    if (!items.length) {
+      listEl.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:12.5px;">暂无收藏生词，在左侧划词查词时点击「☆ 收藏」即可添加。</div>';
+      return;
+    }
+    listEl.innerHTML = items.map(([k, v]) => `
+      <div class="nb-card">
+        <div class="nb-card-top">
+          <div>
+            <span class="nb-word">${escapeHtml(v.word)}</span>
+            <span class="dp-ipa" style="margin-left:6px;">${escapeHtml(v.ipa || '')}</span>
+          </div>
+          <div>
+            <button class="dp-audio-btn" style="padding:2px 6px;" onclick="currentDictWord='${escapeHtml(v.word).replace(/'/g, "\\'")}'; playPronunciation('us', this)">🔊</button>
+            <button class="nb-del" onclick="deleteVocabItem('${escapeHtml(k).replace(/'/g, "\\'")}')">删除</button>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text-soft);line-height:1.55;">${escapeHtml(v.zh || '')}</div>
+        <div class="nb-meta" onclick="toggleNotebook(); navigateTo('${v.file}', ${v.secIdx || 0})">📍 ${escapeHtml(v.chapter || v.file)} (${escapeHtml(v.time || '')})</div>
+      </div>
+    `).join('');
+  } else {
+    const items = Object.entries(notesData)
+      .filter(([k, v]) => !kw || (v.text || '').toLowerCase().includes(kw) || (v.quote || '').toLowerCase().includes(kw) || (v.chapter || '').toLowerCase().includes(kw))
+      .reverse();
+    if (!items.length) {
+      listEl.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:12.5px;">暂无个人备注，鼠标悬停在左侧任意段落点击右上角「📝 备注」即可添加。</div>';
+      return;
+    }
+    listEl.innerHTML = items.map(([k, v]) => `
+      <div class="nb-card">
+        <div class="nb-card-top">
+          <span style="font-size:12px;font-weight:600;color:#b45309;">📝 ${escapeHtml(v.time || '')}</span>
+          <button class="nb-del" onclick="deleteNoteByKey('${escapeHtml(k).replace(/'/g, "\\'")}')">删除</button>
+        </div>
+        <div style="font-size:13.5px;color:#1e293b;line-height:1.6;white-space:pre-wrap;margin-bottom:4px;">${escapeHtml(v.text)}</div>
+        <div style="font-size:12px;color:var(--muted);background:#f8fafc;padding:4px 8px;border-radius:4px;">${escapeHtml((v.quote || '').slice(0, 90))}...</div>
+        <div class="nb-meta" onclick="toggleNotebook(); navigateTo('${v.file}', ${v.secIdx || 0})">📍 跳转至：${escapeHtml(v.chapter || v.file)}</div>
+      </div>
+    `).join('');
+  }
+}
+
+function deleteVocabItem(key) {
+  delete vocabData[key];
+  saveLocalNotebook();
+  renderNotebookList();
+  ghPutJson('data/vocab.json', vocabData, 'vocab', `Remove vocab: ${key}`);
+}
+
+function deleteNoteByKey(key) {
+  delete notesData[key];
+  saveLocalNotebook();
+  mountInlineNotes();
+  renderNotebookList();
+  ghPutJson('data/notes.json', notesData, 'notes', `Delete note`);
+}
+
+function exportNotebookMarkdown() {
+  let md = '';
+  if (activeNbTab === 'vocab') {
+    md = '# IFRS 2022 生词本\n\n';
+    Object.values(vocabData).forEach(v => {
+      md += `- **${v.word}** ${v.ipa || ''}：${(v.zh || '').replace(/\n/g, ' ')}  \n  *出处：${v.chapter} (${v.time})*\n`;
+    });
+  } else {
+    md = '# IFRS 2022 个人备注\n\n';
+    Object.values(notesData).forEach(v => {
+      md += `### ${v.chapter} (${v.time})\n> ${v.quote}\n\n${v.text}\n\n---\n\n`;
+    });
+  }
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = activeNbTab === 'vocab' ? 'IFRS-Vocab.md' : 'IFRS-Notes.md';
+  a.click();
 }
 
 init();
