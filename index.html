@@ -283,10 +283,7 @@
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .dp-head {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 8px; margin-bottom: 8px;
-  }
+  .dp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .dp-word { font-size: 18px; font-weight: 700; color: #0f172a; line-height: 1.25; word-break: break-word; }
   .dp-close {
     border: none; background: transparent; color: var(--muted); cursor: pointer;
@@ -305,10 +302,7 @@
   }
   .dp-audio-btn:hover { background: #dbeafe; }
   .dp-audio-btn.playing { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .dp-zh {
-    font-size: 13.5px; color: #1e293b; line-height: 1.65; margin-bottom: 8px;
-    max-height: 150px; overflow-y: auto;
-  }
+  .dp-zh { font-size: 13.5px; color: #1e293b; line-height: 1.65; margin-bottom: 8px; max-height: 150px; overflow-y: auto; }
   .dp-pos-row { margin-bottom: 4px; }
   .dp-pos-tag {
     display: inline-block; font-size: 11px; font-weight: 600; color: var(--zh-dark);
@@ -321,8 +315,7 @@
   .dp-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .dp-ai-btn {
     width: 100%; border: 1px dashed #93c5fd; background: #f8fafc; color: var(--accent-dark);
-    border-radius: 7px; padding: 5px 10px; font-size: 12px; font-weight: 500;
-    cursor: pointer; transition: .15s;
+    border-radius: 7px; padding: 5px 10px; font-size: 12px; font-weight: 500; cursor: pointer; transition: .15s;
   }
   .dp-ai-btn:hover { background: var(--accent-soft); border-style: solid; }
   .dp-ai-res {
@@ -623,7 +616,6 @@ document.getElementById('left-pane').addEventListener('mouseup', (e) => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed) return;
     const rawText = sel.toString().trim().replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, '');
-    // 支持单个英文单词或 2~3 个词的常见短语
     if (!rawText || rawText.length > 42 || !/^[a-zA-Z][a-zA-Z\-' ]*$/.test(rawText)) return;
     if (rawText.split(/\s+/).length > 3) return;
 
@@ -635,16 +627,11 @@ document.getElementById('left-pane').addEventListener('mouseup', (e) => {
 
 document.addEventListener('mousedown', (e) => {
   const pop = document.getElementById('dict-popover');
-  if (pop.classList.contains('open') && !pop.contains(e.target)) {
-    closeDictPopover();
-  }
+  if (pop.classList.contains('open') && !pop.contains(e.target)) closeDictPopover();
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeDictPopover();
-    closeSearch();
-  }
+  if (e.key === 'Escape') { closeDictPopover(); closeSearch(); }
 });
 
 function positionDictPopover(rect) {
@@ -654,11 +641,8 @@ function positionDictPopover(rect) {
   const popH = pop.offsetHeight || 220;
   let left = rect.left + (rect.width / 2) - (popW / 2);
   left = Math.max(12, Math.min(left, window.innerWidth - popW - 12));
-
   let top = rect.bottom + 10;
-  if (top + popH > window.innerHeight - 12) {
-    top = Math.max(12, rect.top - popH - 10);
-  }
+  if (top + popH > window.innerHeight - 12) top = Math.max(12, rect.top - popH - 10);
   pop.style.left = `${left}px`;
   pop.style.top = `${top}px`;
 }
@@ -670,8 +654,8 @@ async function openDictPopover(word, rect) {
   document.getElementById('dp-word').textContent = word;
   document.getElementById('dp-phonetics').innerHTML = `
     <span class="dp-ipa" id="dp-ipa-text">获取音标中...</span>
-    <button class="dp-audio-btn" id="btn-audio-us" onclick="playPronunciation('us', this)">🔊 美</button>
-    <button class="dp-audio-btn" id="btn-audio-uk" onclick="playPronunciation('uk', this)">🔊 英</button>
+    <button class="dp-audio-btn" onclick="playPronunciation('us', this)">🔊 美</button>
+    <button class="dp-audio-btn" onclick="playPronunciation('uk', this)">🔊 英</button>
   `;
   document.getElementById('dp-zh').innerHTML = '<span style="color:var(--muted)">查询中文释义中...</span>';
   document.getElementById('dp-en-def').style.display = 'none';
@@ -731,12 +715,8 @@ function renderDictData(data) {
   }
 
   const enDefEl = document.getElementById('dp-en-def');
-  if (data.enDef) {
-    enDefEl.textContent = data.enDef;
-    enDefEl.style.display = 'block';
-  } else {
-    enDefEl.style.display = 'none';
-  }
+  if (data.enDef) { enDefEl.textContent = data.enDef; enDefEl.style.display = 'block'; }
+  else enDefEl.style.display = 'none';
 }
 
 async function fetchWithTimeout(url, ms = 3500) {
@@ -752,7 +732,6 @@ async function fetchWithTimeout(url, ms = 3500) {
   }
 }
 
-// 获取音标 + 音频 + 简明英释
 async function fetchFreeDictionary(word) {
   if (word.includes(' ')) return {};
   try {
@@ -760,8 +739,7 @@ async function fetchFreeDictionary(word) {
     if (!res.ok) return {};
     const arr = await res.json();
     const entry = arr[0] || {};
-    let ipa = entry.phonetic || '';
-    let usAudio = '', ukAudio = '';
+    let ipa = entry.phonetic || '', usAudio = '', ukAudio = '';
     for (const p of (entry.phonetics || [])) {
       if (!ipa && p.text) ipa = p.text;
       if (p.audio) {
@@ -775,14 +753,10 @@ async function fetchFreeDictionary(word) {
       ? `[${firstMeaning.partOfSpeech}] ${firstMeaning.definitions[0].definition}`
       : '';
     return { ipa, usAudio, ukAudio, enDef };
-  } catch {
-    return {};
-  }
+  } catch { return {}; }
 }
 
-// 获取中文释义（双源容错：优先 Google 词典多词性，失败自动切 MyMemory）
 async function fetchChineseMeaning(word) {
-  // 通道 1：Google Translate 词典接口（含词性分类）
   const tryGoogle = async () => {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&dt=bd&q=${encodeURIComponent(word)}`;
     const res = await fetchWithTimeout(url, 2500);
@@ -800,8 +774,6 @@ async function fetchChineseMeaning(word) {
     if (!rows.length && !text) throw new Error('empty');
     return { rows, text };
   };
-
-  // 通道 2：MyMemory 免费接口（国内直连友好）
   const tryMyMemory = async () => {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`;
     const res = await fetchWithTimeout(url, 4000);
@@ -811,19 +783,13 @@ async function fetchChineseMeaning(word) {
     if (!text) throw new Error('empty');
     return { rows: [], text };
   };
-
-  try {
-    return await tryGoogle();
-  } catch {
-    try {
-      return await tryMyMemory();
-    } catch {
-      return { rows: [], text: '' };
-    }
+  try { return await tryGoogle(); }
+  catch {
+    try { return await tryMyMemory(); }
+    catch { return { rows: [], text: '' }; }
   }
 }
 
-// 点击发声：词典原声 -> 有道真人发声 -> 浏览器内置 TTS 兜底
 function playPronunciation(accent, btnEl) {
   const word = currentDictWord;
   if (!word) return;
@@ -844,38 +810,27 @@ function playPronunciation(accent, btnEl) {
   const youdaoUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${accent === 'uk' ? 1 : 2}`;
   const primaryUrl = (accent === 'uk' ? currentDictAudio.uk : currentDictAudio.us) || youdaoUrl;
 
+  const tryYoudaoOrTTS = () => {
+    if (primaryUrl !== youdaoUrl) {
+      const yd = new Audio(youdaoUrl);
+      yd.onended = stopVisual;
+      yd.onerror = fallbackTTS;
+      yd.play().catch(fallbackTTS);
+    } else fallbackTTS();
+  };
+
   const audio = new Audio(primaryUrl);
   audio.onended = stopVisual;
-  audio.onerror = () => {
-    if (primaryUrl !== youdaoUrl) {
-      const yd = new Audio(youdaoUrl);
-      yd.onended = stopVisual;
-      yd.onerror = fallbackTTS;
-      yd.play().catch(fallbackTTS);
-    } else {
-      fallbackTTS();
-    }
-  };
-  audio.play().catch(() => {
-    if (primaryUrl !== youdaoUrl) {
-      const yd = new Audio(youdaoUrl);
-      yd.onended = stopVisual;
-      yd.onerror = fallbackTTS;
-      yd.play().catch(fallbackTTS);
-    } else {
-      fallbackTTS();
-    }
-  });
+  audio.onerror = tryYoudaoOrTTS;
+  audio.play().catch(tryYoudaoOrTTS);
 }
 
-// 可选：调用已配置的 AI 解释该词在 IFRS 中的专业用法
 async function explainWordWithAI() {
   const cfg = getConfig();
   if (!cfg.key) { openSettings(); alert('请先填入 API Key'); return; }
   const resBox = document.getElementById('dp-ai-res');
   resBox.style.display = 'block';
   resBox.textContent = 'AI 正在结合 IFRS 语境解析...';
-
   try {
     const res = await fetch(`${cfg.url}/chat/completions`, {
       method: 'POST',
@@ -896,7 +851,7 @@ async function explainWordWithAI() {
   }
 }
 
-/* ==================== 章节加载与双栏同步 ==================== */
+/* ==================== 章节加载与全局 DP 智能对齐 ==================== */
 function parseMarkdownToSections(mdText, fallbackTitle) {
   const temp = document.createElement('div');
   temp.innerHTML = marked.parse(mdText);
@@ -960,9 +915,7 @@ async function loadChapterPair(file) {
       const resZh = await fetch(`MDCN/${file}`);
       if (resZh.ok) zhCache.set(file, parseMarkdownToSections(await resZh.text(), title));
       else zhCache.set(file, null);
-    } catch {
-      zhCache.set(file, null);
-    }
+    } catch { zhCache.set(file, null); }
   }
   return { en: enCache.get(file), zh: zhCache.get(file) };
 }
@@ -1051,18 +1004,20 @@ async function handleHash() {
 function renderDualSection(en, zh, secIdx, anchor = '') {
   closeDictPopover();
   const enSec = en.sections[secIdx];
+
+  // Part 2/3 中文小节智能兜底匹配
   let zhSec = null;
-if (zh && zh.sections.length) {
-  if (anchor && zh.anchorMap.has(anchor)) {
-    zhSec = zh.sections[zh.anchorMap.get(anchor)];
-  } else if (zh.sections[secIdx]) {
-    zhSec = zh.sections[secIdx];
-  } else if (zh.sections.length === 1) {
-    zhSec = zh.sections[0];
-  } else {
-    zhSec = zh.sections[Math.min(secIdx, zh.sections.length - 1)];
+  if (zh && zh.sections.length) {
+    if (anchor && zh.anchorMap.has(anchor)) {
+      zhSec = zh.sections[zh.anchorMap.get(anchor)];
+    } else if (zh.sections[secIdx]) {
+      zhSec = zh.sections[secIdx];
+    } else if (zh.sections.length === 1) {
+      zhSec = zh.sections[0];
+    } else {
+      zhSec = zh.sections[Math.min(secIdx, zh.sections.length - 1)];
+    }
   }
-}
 
   const prevSec = secIdx > 0 ? en.sections[secIdx - 1] : null;
   const nextSec = secIdx < en.sections.length - 1 ? en.sections[secIdx + 1] : null;
@@ -1085,7 +1040,7 @@ if (zh && zh.sections.length) {
   document.getElementById('md-right').innerHTML = `
     <div class="pane-bar">
       <div><span class="lang-pill zh">中文译文 (MDCN)</span> &nbsp;${zhSec ? escapeHtml(zhSec.title) : ''}</div>
-      <span style="font-size:11.5px;">锚点智能对齐 · 点击定位</span>
+      <span style="font-size:11.5px;">全局智能对齐 · 点击定位</span>
     </div>
     <div id="right-body">${zhSec ? zhSec.html : '<p style="color:var(--muted);padding:30px 0;">未找到对应的 MDCN 中文小节内容。</p>'}</div>
   `;
@@ -1129,7 +1084,8 @@ function locateDualPosition({ lang, anchor, snippet, query }) {
   if (foundIdx === -1) return;
 
   const srcEl = srcList[foundIdx];
-  const dstEl = dstList[mapArr[foundIdx]];
+  const dstIndices = mapArr[foundIdx] || [];
+  const dstEl = dstIndices.length ? dstList[dstIndices[0]] : null;
 
   if (query && srcEl) highlightInDomElement(srcEl, query);
 
@@ -1164,17 +1120,113 @@ function highlightInDomElement(rootEl, query) {
   });
 }
 
+// 增强硬锚点特征提取：兼容 <a id> 及中英文各类编号前缀（FAQ / 常见问题 / EX / 示例 / 条款号）
 function getBlockSyncKeys(el) {
   const keys = [];
-  const aWithId = el.querySelector('a[id]');
-  if (aWithId && aWithId.id) keys.push('id:' + aWithId.id);
+  for (const child of el.children) {
+    if (child.tagName === 'A' && child.id) keys.push('id:' + child.id);
+  }
   const prev = el.previousElementSibling;
   if (prev && prev.tagName === 'A' && prev.id) keys.push('id:' + prev.id);
 
   const txt = el.innerText.trim();
-  const numMatch = txt.match(/^(?:FAQ\s*|EX\s*)?(\d+\.\d+(?:\.\d+)*)\b/i);
-  if (numMatch) keys.push('num:' + numMatch[0].toLowerCase().replace(/\s+/g, ''));
+  // 匹配 FAQ/常见问题、EX/示例/例、或纯条款号如 1.1 / 7.3.1 / 15.134.2
+  const m = txt.match(/^(?:(?:FAQ|常见问题|问答)\s*|((?:EX|Example|示例|例)\s*)|(?:Para|第)\s*)?(\d+\.\d+(?:\.\d+)*)\b/i);
+  if (m) {
+    const num = m[2];
+    const isFaq = /^(?:FAQ|常见问题|问答)/i.test(txt);
+    const isEx = /^(?:EX|Example|示例|例)/i.test(txt);
+    if (isFaq) keys.push('faq:' + num);
+    else if (isEx) keys.push('ex:' + num);
+    else keys.push('num:' + num);
+  }
   return keys;
+}
+
+// 归一化标签类型，用于区间 DP 对齐
+function getBlockType(el) {
+  const t = el.tagName;
+  if (t === 'H1' || t === 'H2' || t === 'H3' || t === 'H4') return t;
+  if (t === 'LI') return 'LI';
+  if (t === 'TR') return 'TR';
+  return 'P';
+}
+
+// 区间动态规划对齐（解决文章中间和末尾因拆段/并段导致的错位）
+function alignIntervalDP(L, R, lStart, lEnd, rStart, rEnd, linkFn) {
+  const n = lEnd - lStart;
+  const m = rEnd - rStart;
+  if (n <= 0 && m <= 0) return;
+  if (n <= 0) {
+    const targetL = Math.max(0, lStart - 1);
+    for (let j = rStart; j < rEnd; j++) linkFn(targetL, j);
+    return;
+  }
+  if (m <= 0) {
+    const targetR = Math.max(0, rStart - 1);
+    for (let i = lStart; i < lEnd; i++) linkFn(i, targetR);
+    return;
+  }
+
+  // 超大区间降级为比例映射保证流畅
+  if (n * m > 36000) {
+    for (let i = 0; i < n; i++) {
+      const j = Math.min(m - 1, Math.floor((i / n) * m));
+      linkFn(lStart + i, rStart + j);
+    }
+    return;
+  }
+
+  // 计算两段相似度代价（越小越匹配）
+  const cost = (i, j) => {
+    const elL = L[lStart + i], elR = R[rStart + j];
+    const typeL = getBlockType(elL), typeR = getBlockType(elR);
+    let c = (typeL === typeR) ? 0 : (typeL.startsWith('H') !== typeR.startsWith('H') ? 4.0 : 1.5);
+    // 英文字符数通常约为中文字符数的 2.6 倍，按比例比较长度差异
+    const lenL = Math.max(1, elL.innerText.trim().length);
+    const lenR = Math.max(1, elR.innerText.trim().length * 2.6);
+    const ratio = Math.max(lenL, lenR) / Math.min(lenL, lenR);
+    c += Math.min(2.5, (ratio - 1) * 0.6);
+    return c;
+  };
+
+  const dp = Array.from({ length: n + 1 }, () => new Float32Array(m + 1).fill(1e9));
+  const bt = Array.from({ length: n + 1 }, () => new Uint8Array(m + 1)); // 1:diag, 2:up(2L->1R), 3:left(1L->2R)
+  dp[0][0] = 0;
+
+  for (let i = 0; i <= n; i++) {
+    for (let j = 0; j <= m; j++) {
+      if (i > 0 && j > 0) {
+        const v = dp[i - 1][j - 1] + cost(i - 1, j - 1);
+        if (v < dp[i][j]) { dp[i][j] = v; bt[i][j] = 1; }
+      }
+      if (i > 0 && j > 0) {
+        const vUp = dp[i - 1][j] + 1.2 + cost(i - 1, j - 1) * 0.4;
+        if (vUp < dp[i][j]) { dp[i][j] = vUp; bt[i][j] = 2; }
+        const vLeft = dp[i][j - 1] + 1.2 + cost(i - 1, j - 1) * 0.4;
+        if (vLeft < dp[i][j]) { dp[i][j] = vLeft; bt[i][j] = 3; }
+      } else if (i > 0) {
+        dp[i][0] = dp[i - 1][0] + 2.0; bt[i][0] = 2;
+      } else if (j > 0) {
+        dp[0][j] = dp[0][j - 1] + 2.0; bt[0][j] = 3;
+      }
+    }
+  }
+
+  let i = n, j = m;
+  while (i > 0 || j > 0) {
+    const step = bt[i][j];
+    if (step === 1) {
+      linkFn(lStart + i - 1, rStart + j - 1);
+      i--; j--;
+    } else if (step === 2) {
+      linkFn(lStart + i - 1, rStart + Math.max(0, j - 1));
+      i--;
+    } else {
+      linkFn(lStart + Math.max(0, i - 1), rStart + j - 1);
+      j--;
+    }
+  }
 }
 
 function bindSmartSyncHighlighting() {
@@ -1184,6 +1236,8 @@ function bindSmartSyncHighlighting() {
       if (!el.innerText.trim()) return false;
       if (el.tagName === 'P' && el.closest('li, td, th')) return false;
       if (el.tagName === 'LI' && el.closest('td, th')) return false;
+      // 避免嵌套 li 重复计数（只保留最内层或不含子列表的文本）
+      if (el.tagName === 'LI' && el.querySelector('ul, ol')) return false;
       return true;
     });
   };
@@ -1196,6 +1250,7 @@ function bindSmartSyncHighlighting() {
   L.forEach(el => el.classList.add('sync-block'));
   R.forEach(el => el.classList.add('sync-block'));
 
+  // 1. 收集硬锚点（支持 id 与中英文编号）
   const rightKeyMap = new Map();
   R.forEach((el, ri) => {
     for (const k of getBlockSyncKeys(el)) {
@@ -1204,10 +1259,9 @@ function bindSmartSyncHighlighting() {
     }
   });
 
-  const anchors = [[0, 0]];
-  let lastR = 0;
+  const anchors = [];
+  let lastR = -1;
   L.forEach((el, li) => {
-    if (li === 0) return;
     for (const k of getBlockSyncKeys(el)) {
       const candidates = rightKeyMap.get(k);
       if (!candidates) continue;
@@ -1219,56 +1273,64 @@ function bindSmartSyncHighlighting() {
       }
     }
   });
-  if (anchors[anchors.length - 1][0] !== L.length - 1 || anchors[anchors.length - 1][1] !== R.length - 1) {
-    anchors.push([L.length - 1, R.length - 1]);
+
+  // 2. 分段执行全局 DP 对齐
+  const l2r = Array.from({ length: L.length }, () => new Set());
+  const r2l = Array.from({ length: R.length }, () => new Set());
+  const link = (li, ri) => {
+    if (li >= 0 && li < L.length && ri >= 0 && ri < R.length) {
+      l2r[li].add(ri);
+      r2l[ri].add(li);
+    }
+  };
+
+  let prevL = 0, prevR = 0;
+  for (const [al, ar] of anchors) {
+    alignIntervalDP(L, R, prevL, al, prevR, ar, link);
+    link(al, ar);
+    prevL = al + 1;
+    prevR = ar + 1;
   }
+  // 对齐最后一个锚点到文章末尾的剩余段落
+  alignIntervalDP(L, R, prevL, L.length, prevR, R.length, link);
 
-  const l2r = new Array(L.length).fill(0);
-  const r2l = new Array(R.length).fill(0);
-  for (let a = 0; a < anchors.length - 1; a++) {
-    const [l1, r1] = anchors[a];
-    const [l2, r2] = anchors[a + 1];
-    const dl = Math.max(1, l2 - l1);
-    const dr = Math.max(1, r2 - r1);
-    for (let li = l1; li <= l2; li++) l2r[li] = Math.min(R.length - 1, Math.round(r1 + ((li - l1) / dl) * (r2 - r1)));
-    for (let ri = r1; ri <= r2; ri++) r2l[ri] = Math.min(L.length - 1, Math.round(l1 + ((ri - r1) / dr) * (l2 - l1)));
-  }
+  const l2rArr = l2r.map(s => Array.from(s));
+  const r2lArr = r2l.map(s => Array.from(s));
+  currentSync = { L, R, l2r: l2rArr, r2l: r2lArr };
 
-  currentSync = { L, R, l2r, r2l };
-
+  // 3. 绑定悬停多段联动高亮与点击对齐
   const bindSide = (srcList, dstList, mapArr) => {
     srcList.forEach((el, i) => {
       el.addEventListener('mouseenter', (e) => {
         e.stopPropagation();
         el.classList.add('sync-hover');
-        const partner = dstList[mapArr[i]];
-        if (partner) partner.classList.add('sync-hover');
+        (mapArr[i] || []).forEach(idx => dstList[idx]?.classList.add('sync-hover'));
       });
       el.addEventListener('mouseleave', (e) => {
         e.stopPropagation();
         el.classList.remove('sync-hover');
-        const partner = dstList[mapArr[i]];
-        if (partner) partner.classList.remove('sync-hover');
+        (mapArr[i] || []).forEach(idx => dstList[idx]?.classList.remove('sync-hover'));
       });
       el.addEventListener('click', (e) => {
         if (e.target.closest('a[href]')) return;
-        // 正在划词选中文本时，不触发点击对齐滚动
         if (window.getSelection().toString().trim().length > 0) return;
         e.stopPropagation();
-        const partner = dstList[mapArr[i]];
-        if (partner) {
+        const targets = (mapArr[i] || []).map(idx => dstList[idx]).filter(Boolean);
+        if (targets.length) {
           temporarilyPauseSyncScroll(700);
-          partner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          partner.classList.remove('anchor-flash');
-          void partner.offsetWidth;
-          partner.classList.add('anchor-flash');
+          targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targets.forEach(t => {
+            t.classList.remove('anchor-flash');
+            void t.offsetWidth;
+            t.classList.add('anchor-flash');
+          });
         }
       });
     });
   };
 
-  bindSide(L, R, l2r);
-  bindSide(R, L, r2l);
+  bindSide(L, R, l2rArr);
+  bindSide(R, L, r2lArr);
 }
 
 ['md-left', 'md-right'].forEach(id => {
