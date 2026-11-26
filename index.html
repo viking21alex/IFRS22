@@ -18,11 +18,14 @@
     --accent: #3b82f6;
     --accent-dark: #2563eb;
     --accent-soft: #eff6ff;
+    --zh-accent: #10b981;
+    --zh-dark: #059669;
+    --zh-soft: #ecfdf5;
     --sync-bg: #fef9c3;
     --sync-border: #eab308;
-    --highlight: #fef08a;
+    --highlight: #fde047;
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
     --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,48 +43,75 @@
 
   /* 顶部导航 */
   header {
-    height: 56px; background: var(--panel); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 18px; gap: 12px;
+    height: 58px; background: var(--panel); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px; gap: 10px;
     flex-shrink: 0; z-index: 20; box-shadow: var(--shadow-sm);
   }
   .brand {
-    font-weight: 700; font-size: 15px; white-space: nowrap; color: var(--text);
-    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    font-weight: 700; font-size: 14.5px; white-space: nowrap; color: var(--text);
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
   }
   .brand-badge {
     background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff;
-    font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 600;
+    font-size: 11px; padding: 2px 6px; border-radius: 5px; font-weight: 600;
   }
-  .search-wrap { flex: 1; max-width: 560px; display: flex; gap: 6px; margin-left: 8px; }
-  .search-wrap input {
-    flex: 1; padding: 8px 13px; border: 1px solid var(--border); border-radius: 8px;
-    font-size: 13px; outline: none; background: #f8fafc; transition: .2s;
+
+  /* 双搜索栏容器 */
+  .dual-search {
+    flex: 1; display: flex; gap: 10px; max-width: 760px; margin: 0 6px;
   }
-  .search-wrap input:focus { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+  .search-box {
+    flex: 1; display: flex; align-items: center; gap: 4px;
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 3px 4px 3px 8px; transition: .18s;
+  }
+  .search-box.en:focus-within { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+  .search-box.zh:focus-within { background: #fff; border-color: var(--zh-accent); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+  .s-tag {
+    font-size: 10.5px; font-weight: 700; padding: 2px 5px; border-radius: 4px; flex-shrink: 0;
+  }
+  .s-tag.en { background: var(--accent-soft); color: var(--accent-dark); }
+  .s-tag.zh { background: var(--zh-soft); color: var(--zh-dark); }
+  .search-box input {
+    flex: 1; min-width: 80px; border: none; background: transparent;
+    font-size: 12.5px; outline: none; color: var(--text); padding: 4px;
+  }
+  .s-btn {
+    border: none; background: #e2e8f0; color: var(--text); border-radius: 5px;
+    padding: 4px 8px; font-size: 11.5px; font-weight: 500; cursor: pointer; white-space: nowrap;
+  }
+  .s-btn:hover { background: #cbd5e1; }
+  .s-btn.ai-en { background: var(--accent); color: #fff; }
+  .s-btn.ai-en:hover { background: var(--accent-dark); }
+  .s-btn.ai-zh { background: var(--zh-accent); color: #fff; }
+  .s-btn.ai-zh:hover { background: var(--zh-dark); }
 
   .btn {
-    padding: 7px 13px; border: 1px solid var(--border); background: var(--panel);
-    border-radius: 8px; font-size: 12.5px; font-weight: 500; cursor: pointer;
+    padding: 6px 11px; border: 1px solid var(--border); background: var(--panel);
+    border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer;
     white-space: nowrap; color: var(--text-soft); transition: all .15s;
-    display: inline-flex; align-items: center; gap: 5px;
+    display: inline-flex; align-items: center; gap: 4px;
   }
   .btn:hover { background: #f1f5f9; color: var(--text); border-color: #cbd5e1; }
   .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .btn.primary:hover { background: var(--accent-dark); }
-  .header-actions { margin-left: auto; display: flex; gap: 8px; }
+  .btn.active-toggle {
+    background: var(--accent-soft); color: var(--accent-dark);
+    border-color: #93c5fd; font-weight: 600;
+  }
+  .header-actions { margin-left: auto; display: flex; gap: 6px; }
 
   /* 主体布局 */
   .main { flex: 1; display: flex; overflow: hidden; position: relative; }
 
   /* 左侧目录 */
   aside {
-    width: 290px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
     display: flex; flex-direction: column; flex-shrink: 0; transition: width .22s ease;
   }
   aside.collapsed { width: 0; overflow: hidden; border-right: none; }
-  .aside-filter { padding: 12px; border-bottom: 1px solid var(--border); background: var(--panel); }
+  .aside-filter { padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--panel); }
   .aside-filter input {
-    width: 100%; padding: 7px 11px; border: 1px solid var(--border);
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border);
     border-radius: 7px; font-size: 12.5px; outline: none; background: #f8fafc;
   }
   .aside-filter input:focus { background: #fff; border-color: var(--accent); }
@@ -121,7 +151,7 @@
   .pane {
     flex: 1; overflow-y: auto; background: var(--panel);
     border-radius: var(--radius); border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm); padding: 24px 32px 60px; scroll-behavior: smooth;
+    box-shadow: var(--shadow-sm); padding: 24px 30px 60px;
   }
   #right-pane { background: #fcfdff; }
   #right-pane.hidden { display: none; }
@@ -135,7 +165,7 @@
     font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px;
     background: var(--accent-soft); color: var(--accent-dark);
   }
-  .lang-pill.zh { background: #ecfdf5; color: #059669; }
+  .lang-pill.zh { background: var(--zh-soft); color: var(--zh-dark); }
 
   /* Markdown 排版 */
   .md-body { max-width: 780px; margin: 0 auto; line-height: 1.78; font-size: 14.5px; color: #263244; }
@@ -156,15 +186,11 @@
   .md-body th, .md-body td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
   .md-body th { background: #f8fafc; font-weight: 600; }
 
-  /* 双方悬浮联动高亮样式（复刻课件手感） */
+  /* 双方悬浮联动高亮 */
   .sync-block {
-    border-radius: 6px;
-    padding: 3px 8px;
-    margin-left: -8px;
-    margin-right: -8px;
+    border-radius: 6px; padding: 3px 8px; margin-left: -8px; margin-right: -8px;
     border-left: 3px solid transparent;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease; cursor: pointer;
   }
   .sync-block.sync-hover {
     background-color: var(--sync-bg) !important;
@@ -176,7 +202,7 @@
     70% { background: var(--highlight); }
     100% { background: transparent; }
   }
-  .anchor-flash { animation: flashHighlight 2.2s ease-out; border-radius: 6px; }
+  .anchor-flash { animation: flashHighlight 2.6s ease-out; border-radius: 6px; }
 
   /* 底部翻页 */
   .page-nav {
@@ -192,26 +218,28 @@
   .nav-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
   .nav-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* 搜索结果浮层 */
+  /* 搜索结果浮层（按左右对齐显示） */
   .search-modal {
-    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-    width: 700px; max-width: 94vw; max-height: 75vh; background: var(--panel);
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 680px; max-width: 94vw; max-height: 75vh; background: var(--panel);
     border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-md);
     display: none; flex-direction: column; z-index: 50;
   }
   .search-modal.open { display: flex; }
   .search-modal-head {
-    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    padding: 11px 16px; border-bottom: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: center;
     font-size: 13px; color: var(--text-soft); font-weight: 500;
   }
   .search-results { overflow-y: auto; padding: 8px; }
   .sr-item { padding: 11px 14px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: .12s; }
   .sr-item:hover { background: var(--accent-soft); }
+  .sr-item.zh-item:hover { background: var(--zh-soft); }
   .sr-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
   .sr-chap { font-size: 12px; font-weight: 600; color: var(--accent-dark); }
-  .sr-lang { font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: #e2e8f0; color: #334155; }
-  .sr-lang.zh { background: #d1fae5; color: #065f46; }
+  .sr-item.zh-item .sr-chap { color: var(--zh-dark); }
+  .sr-lang { font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent-dark); font-weight: 600; }
+  .sr-lang.zh { background: var(--zh-soft); color: var(--zh-dark); }
   .sr-text { font-size: 13px; color: var(--text); line-height: 1.55; }
 
   /* 设置弹窗 */
@@ -235,15 +263,28 @@
   <button class="btn" onclick="toggleSidebar()">☰ 目录</button>
   <div class="brand" onclick="navigateTo('05.md', 0)">
     <span>IFRS 2022</span>
-    <span class="brand-badge">中英对照</span>
+    <span class="brand-badge">双栏</span>
   </div>
-  <div class="search-wrap">
-    <input id="search-input" type="text" placeholder="输入中文或英文关键字离线模糊搜索..." onkeydown="if(event.key==='Enter') runLocalSearch()">
-    <button class="btn" onclick="runLocalSearch()">离线搜索</button>
-    <button class="btn primary" onclick="runAISearch()">✨ AI 语义搜索</button>
+
+  <!-- 独立的左英/右中搜索框 -->
+  <div class="dual-search">
+    <div class="search-box en">
+      <span class="s-tag en">EN</span>
+      <input id="search-en" type="text" placeholder="英文原文搜索 (如 leaseback)..." onkeydown="if(event.key==='Enter') runSearch('en')">
+      <button class="s-btn" onclick="runSearch('en')">搜</button>
+      <button class="s-btn ai-en" onclick="runAISearch('en')" title="AI 英文语义扩词检索">✨</button>
+    </div>
+    <div class="search-box zh">
+      <span class="s-tag zh">中文</span>
+      <input id="search-zh" type="text" placeholder="中文译文搜索 (如 售后租回)..." onkeydown="if(event.key==='Enter') runSearch('zh')">
+      <button class="s-btn" onclick="runSearch('zh')">搜</button>
+      <button class="s-btn ai-zh" onclick="runAISearch('zh')" title="AI 中文语义扩词检索">✨</button>
+    </div>
   </div>
+
   <div class="header-actions">
-    <button class="btn" onclick="toggleRightPane()">双栏开关</button>
+    <button class="btn active-toggle" id="sync-scroll-btn" onclick="toggleSyncScroll()">🔗 同步滚动</button>
+    <button class="btn" onclick="toggleRightPane()">双栏</button>
     <button class="btn" onclick="openSettings()">⚙️ API</button>
   </div>
 </header>
@@ -275,10 +316,10 @@
   </div>
 </div>
 
-<!-- API 设置弹窗（供 AI 语义搜索使用） -->
+<!-- API 设置弹窗 -->
 <div class="modal-mask" id="settings-modal">
   <div class="modal-box">
-    <h3>API 设置（仅用于 AI 语义搜索，本地存储）</h3>
+    <h3>API 设置（仅用于 ✨ AI 语义搜索，本地存储）</h3>
     <div class="field">
       <label>API Base URL（兼容 OpenAI 格式）</label>
       <input id="cfg-url" placeholder="https://api.deepseek.com/v1">
@@ -300,9 +341,15 @@
 
 <script>
 let catalog = [];
-let miniSearch = null;
+let enSearch = null;
+let zhSearch = null;
 let currentFile = '';
 let currentSecIdx = 0;
+let syncScrollEnabled = true;
+let pauseSyncScroll = false;
+let pendingLocate = null; // { lang, anchor, snippet }
+let currentSync = { L: [], R: [], l2r: [], r2l: [] };
+
 const enCache = new Map();
 const zhCache = new Map();
 const expandedFiles = new Set();
@@ -332,23 +379,60 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function toggleRightPane() { document.getElementById('right-pane').classList.toggle('hidden'); }
 function closeSearch() { document.getElementById('search-modal').classList.remove('open'); }
 
-// 中英文混合分词器：英文按词切分，中文按二元词组切分（单字保留）
-function bilingualTokenize(text) {
+function toggleSyncScroll() {
+  syncScrollEnabled = !syncScrollEnabled;
+  const btn = document.getElementById('sync-scroll-btn');
+  btn.classList.toggle('active-toggle', syncScrollEnabled);
+  btn.textContent = syncScrollEnabled ? '🔗 同步滚动' : '🔓 独立滚动';
+}
+
+function temporarilyPauseSyncScroll(ms = 600) {
+  pauseSyncScroll = true;
+  clearTimeout(window._pauseSyncTimer);
+  window._pauseSyncTimer = setTimeout(() => { pauseSyncScroll = false; }, ms);
+}
+
+// 左右双向同步滚动
+(function initSyncScroll() {
+  const leftPane = document.getElementById('left-pane');
+  const rightPane = document.getElementById('right-pane');
+  let activeDriver = null;
+  let clearTimer = null;
+
+  const sync = (source, target, driverName) => {
+    if (!syncScrollEnabled || pauseSyncScroll) return;
+    if (activeDriver && activeDriver !== driverName) return;
+    activeDriver = driverName;
+    clearTimeout(clearTimer);
+    clearTimer = setTimeout(() => { activeDriver = null; }, 80);
+
+    const maxSource = source.scrollHeight - source.clientHeight;
+    const maxTarget = target.scrollHeight - target.clientHeight;
+    if (maxSource > 0 && maxTarget > 0) {
+      target.scrollTop = (source.scrollTop / maxSource) * maxTarget;
+    }
+  };
+
+  leftPane.addEventListener('scroll', () => sync(leftPane, rightPane, 'left'), { passive: true });
+  rightPane.addEventListener('scroll', () => sync(rightPane, leftPane, 'right'), { passive: true });
+})();
+
+// 英文分词器
+function enTokenize(text) {
+  return String(text || '').toLowerCase().match(/[a-z0-9]+(?:\.[0-9]+)*/g) || [];
+}
+
+// 中文分词器（二元切词 + 保留数字/英文缩写如 IFRS 15）
+function zhTokenize(text) {
   const tokens = [];
   const lower = String(text || '').toLowerCase();
-  const enMatches = lower.match(/[a-z0-9]+(?:\.[0-9]+)*/g);
-  if (enMatches) tokens.push(...enMatches);
-
-  const zhMatches = lower.match(/[\u4e00-\u9fff]+/g);
-  if (zhMatches) {
-    for (const seq of zhMatches) {
-      if (seq.length === 1) {
-        tokens.push(seq);
-      } else {
-        for (let i = 0; i < seq.length - 1; i++) {
-          tokens.push(seq.slice(i, i + 2));
-        }
-      }
+  const alnum = lower.match(/[a-z0-9]+(?:\.[0-9]+)*/g);
+  if (alnum) tokens.push(...alnum);
+  const zhSeqs = lower.match(/[\u4e00-\u9fff]+/g);
+  if (zhSeqs) {
+    for (const seq of zhSeqs) {
+      if (seq.length === 1) tokens.push(seq);
+      else for (let i = 0; i < seq.length - 1; i++) tokens.push(seq.slice(i, i + 2));
     }
   }
   return tokens;
@@ -364,29 +448,34 @@ async function init() {
     if (location.hash) handleHash();
     else navigateTo('07.md', 0);
 
-    // 后台加载双语全文检索索引
+    // 加载索引并拆分为独立的英文/中文两个搜索引擎
     fetch('search-index.json').then(r => r.json()).then(docs => {
-      miniSearch = new MiniSearch({
+      const enDocs = docs.filter(d => d.lang === 'en');
+      const zhDocs = docs.filter(d => d.lang === 'zh');
+
+      enSearch = new MiniSearch({
         fields: ['text', 'chapter'],
         storeFields: ['file', 'sec', 'lang', 'chapter', 'anchor', 'text'],
-        tokenize: bilingualTokenize,
-        searchOptions: {
-          tokenize: bilingualTokenize,
-          fuzzy: term => (/^[a-z0-9]+$/i.test(term) ? 0.2 : false),
-          prefix: true,
-          combineWith: 'OR'
-        }
+        tokenize: enTokenize,
+        searchOptions: { tokenize: enTokenize, fuzzy: 0.2, prefix: true }
       });
-      miniSearch.addAll(docs);
-      console.log('双语索引加载完成，共', docs.length, '条');
+      enSearch.addAll(enDocs);
+
+      zhSearch = new MiniSearch({
+        fields: ['text', 'chapter'],
+        storeFields: ['file', 'sec', 'lang', 'chapter', 'anchor', 'text'],
+        tokenize: zhTokenize,
+        searchOptions: { tokenize: zhTokenize, prefix: true }
+      });
+      zhSearch.addAll(zhDocs);
+      console.log(`双索引就绪：EN ${enDocs.length} 条，ZH ${zhDocs.length} 条`);
     });
   } catch (e) {
     document.getElementById('md-left').innerHTML =
-      `<p style="color:#dc2626">加载失败：请先运行 <code>python build_index.py</code> 生成双语索引，并通过 <code>python -m http.server 8000</code> 打开。</p>`;
+      `<p style="color:#dc2626">加载失败：请确认已运行 <code>python build_index.py</code>，并通过 <code>python -m http.server 8000</code> 打开。</p>`;
   }
 }
 
-// 解析 Markdown 并按 H2 切分为独立小节
 function parseMarkdownToSections(mdText, fallbackTitle) {
   const temp = document.createElement('div');
   temp.innerHTML = marked.parse(mdText);
@@ -449,11 +538,8 @@ async function loadChapterPair(file) {
   if (!zhCache.has(file)) {
     try {
       const resZh = await fetch(`MDCN/${file}`);
-      if (resZh.ok) {
-        zhCache.set(file, parseMarkdownToSections(await resZh.text(), title));
-      } else {
-        zhCache.set(file, null);
-      }
+      if (resZh.ok) zhCache.set(file, parseMarkdownToSections(await resZh.text(), title));
+      else zhCache.set(file, null);
     } catch {
       zhCache.set(file, null);
     }
@@ -530,11 +616,8 @@ async function handleHash() {
   if (!file || !file.endsWith('.md')) return;
 
   const { en, zh } = await loadChapterPair(file);
-  if (anchor && en.anchorMap.has(anchor)) {
-    secIdx = en.anchorMap.get(anchor);
-  } else if (anchor && zh && zh.anchorMap.has(anchor)) {
-    secIdx = zh.anchorMap.get(anchor);
-  }
+  if (anchor && en.anchorMap.has(anchor)) secIdx = en.anchorMap.get(anchor);
+  else if (anchor && zh && zh.anchorMap.has(anchor)) secIdx = zh.anchorMap.get(anchor);
   if (secIdx < 0 || secIdx >= en.sections.length) secIdx = 0;
 
   currentFile = file;
@@ -544,7 +627,6 @@ async function handleHash() {
   renderDualSection(en, zh, secIdx, anchor);
 }
 
-// 渲染左右双栏独立页 + 绑定悬浮联动高亮
 function renderDualSection(en, zh, secIdx, anchor = '') {
   const enSec = en.sections[secIdx];
   const zhSec = (zh && zh.sections[secIdx]) ? zh.sections[secIdx] : null;
@@ -570,57 +652,177 @@ function renderDualSection(en, zh, secIdx, anchor = '') {
   document.getElementById('md-right').innerHTML = `
     <div class="pane-bar">
       <div><span class="lang-pill zh">中文译文 (MDCN)</span> &nbsp;${zhSec ? escapeHtml(zhSec.title) : ''}</div>
-      <span style="font-size:11.5px;">悬停联动高亮 · 点击对齐</span>
+      <span style="font-size:11.5px;">锚点智能对齐 · 点击定位</span>
     </div>
     <div id="right-body">${zhSec ? zhSec.html : '<p style="color:var(--muted);padding:30px 0;">未找到对应的 MDCN 中文小节内容。</p>'}</div>
   `;
 
+  temporarilyPauseSyncScroll(300);
   document.getElementById('left-pane').scrollTop = 0;
   document.getElementById('right-pane').scrollTop = 0;
 
-  bindSyncHighlighting();
-  if (anchor) setTimeout(() => scrollToAnchor(anchor), 60);
+  bindSmartSyncHighlighting();
+
+  // 优先执行搜索结果带来的双栏同步定位
+  if (pendingLocate) {
+    const loc = pendingLocate;
+    pendingLocate = null;
+    setTimeout(() => locateDualPosition(loc), 80);
+  } else if (anchor) {
+    setTimeout(() => locateDualPosition({ lang: 'en', anchor, snippet: '' }), 80);
+  }
 }
 
-// 为左右两栏段落编号并绑定鼠标悬停高亮 + 点击滚动对齐
-function bindSyncHighlighting() {
-  const selector = 'p, h1, h2, h3, h4, blockquote, li, tr';
-  const leftBlocks = Array.from(document.querySelectorAll(`#left-body ${selector}`)).filter(el => el.innerText.trim().length > 0);
-  const rightBlocks = Array.from(document.querySelectorAll(`#right-body ${selector}`)).filter(el => el.innerText.trim().length > 0);
+// 双栏同步滚动到同一段落并同时高亮闪烁
+function locateDualPosition({ lang, anchor, snippet }) {
+  const { L, R, l2r, r2l } = currentSync;
+  const srcList = lang === 'zh' ? R : L;
+  const dstList = lang === 'zh' ? L : R;
+  const mapArr = lang === 'zh' ? r2l : l2r;
+  const rootId = lang === 'zh' ? 'right-body' : 'left-body';
 
-  leftBlocks.forEach((el, i) => { el.classList.add('sync-block'); el.dataset.syncIdx = i; });
-  rightBlocks.forEach((el, i) => { el.classList.add('sync-block'); el.dataset.syncIdx = i; });
+  let foundIdx = -1;
 
-  const setHover = (idx, on) => {
-    const l = leftBlocks[idx];
-    const r = rightBlocks[idx];
-    if (l) l.classList.toggle('sync-hover', on);
-    if (r) r.classList.toggle('sync-hover', on);
+  // 1. 先按文本片段精准匹配（搜索结果最准）
+  if (snippet) {
+    const key = snippet.replace(/\s+/g, ' ').trim().slice(0, 28).toLowerCase();
+    if (key.length >= 6) {
+      foundIdx = srcList.findIndex(el => el.innerText.replace(/\s+/g, ' ').toLowerCase().includes(key));
+    }
+  }
+
+  // 2. 再按锚点 ID 匹配
+  if (foundIdx === -1 && anchor) {
+    const anchorEl = document.querySelector(`#${rootId} [id="${CSS.escape(anchor)}"]`);
+    if (anchorEl) {
+      const block = anchorEl.closest('.sync-block') || anchorEl.nextElementSibling?.closest('.sync-block') || anchorEl.parentElement?.closest('.sync-block');
+      if (block) foundIdx = srcList.indexOf(block);
+    }
+  }
+
+  if (foundIdx === -1) return;
+
+  const srcEl = srcList[foundIdx];
+  const dstEl = dstList[mapArr[foundIdx]];
+
+  temporarilyPauseSyncScroll(900);
+  const flash = (el) => {
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('anchor-flash');
+    void el.offsetWidth;
+    el.classList.add('anchor-flash');
+  };
+  flash(srcEl);
+  flash(dstEl);
+}
+
+function getBlockSyncKeys(el) {
+  const keys = [];
+  const aWithId = el.querySelector('a[id]');
+  if (aWithId && aWithId.id) keys.push('id:' + aWithId.id);
+  const prev = el.previousElementSibling;
+  if (prev && prev.tagName === 'A' && prev.id) keys.push('id:' + prev.id);
+
+  const txt = el.innerText.trim();
+  const numMatch = txt.match(/^(?:FAQ\s*|EX\s*)?(\d+\.\d+(?:\.\d+)*)\b/i);
+  if (numMatch) keys.push('num:' + numMatch[0].toLowerCase().replace(/\s+/g, ''));
+  return keys;
+}
+
+function bindSmartSyncHighlighting() {
+  const getCleanBlocks = (rootId) => {
+    const raw = Array.from(document.querySelectorAll(`#${rootId} h1, #${rootId} h2, #${rootId} h3, #${rootId} h4, #${rootId} p, #${rootId} li, #${rootId} tr`));
+    return raw.filter(el => {
+      if (!el.innerText.trim()) return false;
+      if (el.tagName === 'P' && el.closest('li, td, th')) return false;
+      if (el.tagName === 'LI' && el.closest('td, th')) return false;
+      return true;
+    });
   };
 
-  const attachEvents = (blocks, oppositeBlocks) => {
-    blocks.forEach((el, idx) => {
-      el.addEventListener('mouseenter', (e) => { e.stopPropagation(); setHover(idx, true); });
-      el.addEventListener('mouseleave', (e) => { e.stopPropagation(); setHover(idx, false); });
+  const L = getCleanBlocks('left-body');
+  const R = getCleanBlocks('right-body');
+  currentSync = { L, R, l2r: [], r2l: [] };
+  if (!L.length || !R.length) return;
+
+  L.forEach(el => el.classList.add('sync-block'));
+  R.forEach(el => el.classList.add('sync-block'));
+
+  const rightKeyMap = new Map();
+  R.forEach((el, ri) => {
+    for (const k of getBlockSyncKeys(el)) {
+      if (!rightKeyMap.has(k)) rightKeyMap.set(k, []);
+      rightKeyMap.get(k).push(ri);
+    }
+  });
+
+  const anchors = [[0, 0]];
+  let lastR = 0;
+  L.forEach((el, li) => {
+    if (li === 0) return;
+    for (const k of getBlockSyncKeys(el)) {
+      const candidates = rightKeyMap.get(k);
+      if (!candidates) continue;
+      const matchR = candidates.find(ri => ri > lastR);
+      if (matchR !== undefined) {
+        anchors.push([li, matchR]);
+        lastR = matchR;
+        break;
+      }
+    }
+  });
+  if (anchors[anchors.length - 1][0] !== L.length - 1 || anchors[anchors.length - 1][1] !== R.length - 1) {
+    anchors.push([L.length - 1, R.length - 1]);
+  }
+
+  const l2r = new Array(L.length).fill(0);
+  const r2l = new Array(R.length).fill(0);
+  for (let a = 0; a < anchors.length - 1; a++) {
+    const [l1, r1] = anchors[a];
+    const [l2, r2] = anchors[a + 1];
+    const dl = Math.max(1, l2 - l1);
+    const dr = Math.max(1, r2 - r1);
+    for (let li = l1; li <= l2; li++) l2r[li] = Math.min(R.length - 1, Math.round(r1 + ((li - l1) / dl) * (r2 - r1)));
+    for (let ri = r1; ri <= r2; ri++) r2l[ri] = Math.min(L.length - 1, Math.round(l1 + ((ri - r1) / dr) * (l2 - l1)));
+  }
+
+  currentSync = { L, R, l2r, r2l };
+
+  const bindSide = (srcList, dstList, mapArr) => {
+    srcList.forEach((el, i) => {
+      el.addEventListener('mouseenter', (e) => {
+        e.stopPropagation();
+        el.classList.add('sync-hover');
+        const partner = dstList[mapArr[i]];
+        if (partner) partner.classList.add('sync-hover');
+      });
+      el.addEventListener('mouseleave', (e) => {
+        e.stopPropagation();
+        el.classList.remove('sync-hover');
+        const partner = dstList[mapArr[i]];
+        if (partner) partner.classList.remove('sync-hover');
+      });
       el.addEventListener('click', (e) => {
         if (e.target.closest('a[href]')) return;
         e.stopPropagation();
-        const target = oppositeBlocks[idx];
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          target.classList.remove('anchor-flash');
-          void target.offsetWidth;
-          target.classList.add('anchor-flash');
+        const partner = dstList[mapArr[i]];
+        if (partner) {
+          temporarilyPauseSyncScroll(700);
+          partner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          partner.classList.remove('anchor-flash');
+          void partner.offsetWidth;
+          partner.classList.add('anchor-flash');
         }
       });
     });
   };
 
-  attachEvents(leftBlocks, rightBlocks);
-  attachEvents(rightBlocks, leftBlocks);
+  bindSide(L, R, l2r);
+  bindSide(R, L, r2l);
 }
 
-// 拦截左右两侧的内部跳转链接
+// 拦截内部链接跳转
 ['md-left', 'md-right'].forEach(id => {
   document.getElementById(id).addEventListener('click', (e) => {
     const a = e.target.closest('a[href]');
@@ -636,38 +838,40 @@ function bindSyncHighlighting() {
   });
 });
 
-function scrollToAnchor(anchor) {
-  const el = document.querySelector(`#left-body [id="${CSS.escape(anchor)}"]`)
-          || document.querySelector(`#right-body [id="${CSS.escape(anchor)}"]`);
-  if (!el) return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  const target = el.nextElementSibling || el.parentElement;
-  if (target) {
-    target.classList.remove('anchor-flash');
-    void target.offsetWidth;
-    target.classList.add('anchor-flash');
-  }
-}
+// 独立英文 / 中文离线搜索（先 AND 精准匹配，无结果自动降级 OR 模糊匹配）
+function runSearch(lang, customQuery = null, customLabel = '') {
+  const engine = lang === 'zh' ? zhSearch : enSearch;
+  if (!engine) { alert('索引仍在后台加载，请稍等 1 秒重试'); return; }
 
-// 离线中英文模糊搜索
-function runLocalSearch(customQuery = null, label = '') {
-  if (!miniSearch) { alert('双语索引仍在后台加载，请稍等 1 秒重试'); return; }
-  const q = (customQuery ?? document.getElementById('search-input').value).trim();
+  const inputEl = document.getElementById(lang === 'zh' ? 'search-zh' : 'search-en');
+  const q = (customQuery ?? inputEl.value).trim();
   if (!q) return;
-  const results = miniSearch.search(q).slice(0, 45);
-  showSearchResults(results, label || `离线检索 "${q}"，命中 ${results.length} 条`);
+
+  let results = engine.search(q, { combineWith: 'AND' }).slice(0, 40);
+  let modeText = '精准匹配';
+  if (!results.length) {
+    results = engine.search(q, { combineWith: 'OR' }).slice(0, 40);
+    modeText = '模糊匹配';
+  }
+  const langName = lang === 'zh' ? '中文译文' : '英文原文';
+  showSearchResults(results, lang, customLabel || `[${langName} · ${modeText}] "${q}"，命中 ${results.length} 条`);
 }
 
-// 独立 AI 语义搜索（将自然语言问题扩写为中英文核心 IFRS 术语，再查本地双语库）
-async function runAISearch() {
-  const q = document.getElementById('search-input').value.trim();
+// 独立 AI 语义扩词搜索
+async function runAISearch(lang) {
+  const inputEl = document.getElementById(lang === 'zh' ? 'search-zh' : 'search-en');
+  const q = inputEl.value.trim();
   if (!q) return;
   const cfg = getConfig();
   if (!cfg.key) { openSettings(); alert('AI 语义搜索需要先填写 API Key'); return; }
 
   document.getElementById('search-modal').classList.add('open');
-  document.getElementById('search-status').textContent = 'AI 正在提炼中英文 IFRS 专业检索词...';
+  document.getElementById('search-status').textContent = `AI 正在提炼 IFRS ${lang === 'zh' ? '中文' : '英文'}专业检索词...`;
   document.getElementById('search-results').innerHTML = '';
+
+  const prompt = lang === 'zh'
+    ? '你是 IFRS 检索助手。根据用户的会计问题，只输出 2 到 4 个最核心的 IFRS 中文专业会计术语（用空格分隔），不要输出英文、标点、解释或序号。'
+    : '你是 IFRS 检索助手。根据用户的会计问题，只输出 2 到 4 个最核心的 IFRS 英文专业会计术语（用空格分隔），不要输出中文、标点、解释或序号。';
 
   try {
     const res = await fetch(`${cfg.url}/chat/completions`, {
@@ -675,22 +879,21 @@ async function runAISearch() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.key}` },
       body: JSON.stringify({
         model: cfg.model,
-        messages: [
-          { role: 'system', content: '你是 IFRS 检索助手。根据用户的会计问题，只输出 4 到 6 个最核心的 IFRS 中文和英文专业检索词（中英混合，用空格分隔），不要输出任何标点、解释或序号。' },
-          { role: 'user', content: q }
-        ],
+        messages: [{ role: 'system', content: prompt }, { role: 'user', content: q }],
         temperature: 0.1
       })
     });
     const data = await res.json();
     const expanded = data.choices?.[0]?.message?.content?.trim() || q;
-    runLocalSearch(expanded, `AI 语义扩词 [${expanded}]，本地双语命中：`);
+    runSearch(lang, expanded, `AI 语义扩词 [${expanded}]，命中结果：`);
   } catch (err) {
     document.getElementById('search-status').textContent = 'AI 语义搜索失败：' + err.message;
   }
 }
 
-function showSearchResults(results, title) {
+let lastSearchResults = [];
+function showSearchResults(results, lang, title) {
+  lastSearchResults = results;
   document.getElementById('search-modal').classList.add('open');
   document.getElementById('search-status').textContent = title;
   const box = document.getElementById('search-results');
@@ -698,18 +901,24 @@ function showSearchResults(results, title) {
     box.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">未找到匹配段落</div>';
     return;
   }
-  box.innerHTML = results.map(r => {
-    const target = r.anchor ? `'${r.anchor}'` : (r.sec || 0);
-    return `
-      <div class="sr-item" onclick="closeSearch(); navigateTo('${r.file}', ${target})">
-        <div class="sr-head">
-          <span class="sr-lang ${r.lang === 'zh' ? 'zh' : ''}">${r.lang === 'zh' ? '中文' : 'EN'}</span>
-          <span class="sr-chap">${escapeHtml(r.chapter)}</span>
-        </div>
-        <div class="sr-text">${escapeHtml(r.text.slice(0, 200))}...</div>
+  box.innerHTML = results.map((r, idx) => `
+    <div class="sr-item ${lang === 'zh' ? 'zh-item' : ''}" onclick="jumpToSearchResult(${idx})">
+      <div class="sr-head">
+        <span class="sr-lang ${lang === 'zh' ? 'zh' : ''}">${lang === 'zh' ? '中文' : 'EN'}</span>
+        <span class="sr-chap">${escapeHtml(r.chapter)}</span>
       </div>
-    `;
-  }).join('');
+      <div class="sr-text">${escapeHtml(r.text.slice(0, 200))}...</div>
+    </div>
+  `).join('');
+}
+
+function jumpToSearchResult(idx) {
+  const r = lastSearchResults[idx];
+  if (!r) return;
+  closeSearch();
+  pendingLocate = { lang: r.lang, anchor: r.anchor || '', snippet: r.text || '' };
+  const target = r.anchor ? r.anchor : (r.sec || 0);
+  navigateTo(r.file, target);
 }
 
 function escapeHtml(str) {
