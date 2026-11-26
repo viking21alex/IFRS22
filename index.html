@@ -225,6 +225,35 @@
   .nav-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
   .nav-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+  /* 本页大纲悬浮抽屉 (TOC) */
+  .toc-drawer {
+    position: absolute; top: 12px; right: 12px; width: 340px; max-width: 90vw;
+    max-height: calc(100% - 24px); background: var(--panel);
+    border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: var(--shadow-md); display: none; flex-direction: column; z-index: 45;
+  }
+  .toc-drawer.open { display: flex; }
+  .toc-head {
+    padding: 11px 14px; border-bottom: 1px solid var(--border); background: #f8fafc;
+    border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: space-between;
+  }
+  .toc-head strong { font-size: 13px; color: var(--text); }
+  .toc-filter { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+  .toc-filter input {
+    width: 100%; padding: 6px 10px; border: 1px solid var(--border);
+    border-radius: 6px; font-size: 12.5px; outline: none; background: #f8fafc;
+  }
+  .toc-filter input:focus { background: #fff; border-color: var(--accent); }
+  .toc-list { flex: 1; overflow-y: auto; padding: 6px 8px 12px; }
+  .toc-item {
+    padding: 6px 10px; border-radius: 6px; font-size: 12.5px; line-height: 1.45;
+    color: var(--text-soft); cursor: pointer; margin-bottom: 2px; transition: .12s;
+  }
+  .toc-item:hover { background: var(--accent-soft); color: var(--accent-dark); }
+  .toc-item.lvl-h3 { font-weight: 600; color: var(--text); }
+  .toc-item.lvl-h4 { padding-left: 22px; font-size: 12px; border-left: 2px solid #e2e8f0; margin-left: 8px; }
+  .toc-item.lvl-h4:hover { border-left-color: var(--accent); }
+
   /* 快速搜索结果浮层 */
   .search-modal {
     position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
@@ -347,6 +376,7 @@
     <span class="brand-badge">中英双栏</span>
   </div>
   <div class="header-actions">
+    <button class="btn" id="toc-toggle-btn" onclick="togglePageTOC()">📑 本页目录 (0)</button>
     <button class="btn active-green" id="vocab-toggle-btn" onclick="toggleVocabMode()" title="开启后，在左侧英文区选中单词将弹出音标、发音与中文释义">📖 划词学习: 开</button>
     <button class="btn active-toggle" id="sync-scroll-btn" onclick="toggleSyncScroll()">🔗 同步滚动</button>
     <button class="btn" onclick="toggleRightPane()">双栏开关</button>
@@ -391,6 +421,18 @@
       <div class="pane-scroll" id="right-pane">
         <div class="md-body" id="md-right"></div>
       </div>
+    </div>
+
+    <!-- 本页大纲悬浮抽屉 -->
+    <div class="toc-drawer" id="toc-drawer">
+      <div class="toc-head">
+        <strong>📑 本页标题目录 (TOC)</strong>
+        <button class="dp-close" onclick="togglePageTOC()" title="收起">✕</button>
+      </div>
+      <div class="toc-filter">
+        <input id="toc-filter-input" type="text" placeholder="筛选本页标题/FAQ (如 45.4.1)..." oninput="filterPageTOC()">
+      </div>
+      <div class="toc-list" id="toc-list"></div>
     </div>
 
     <!-- 快速搜索结果浮层 -->
@@ -468,6 +510,7 @@ let currentSync = { L: [], R: [], l2r: [], r2l: [] };
 let lastSearchState = { results: [], lang: 'en', query: '', title: '' };
 let currentDictWord = '';
 let currentDictAudio = { us: '', uk: '' };
+let pageHeadings = [];
 
 const enCache = new Map();
 const zhCache = new Map();
@@ -1050,6 +1093,7 @@ function renderDualSection(en, zh, secIdx, anchor = '') {
   document.getElementById('right-pane').scrollTop = 0;
 
   bindSmartSyncHighlighting();
+  buildPageTOC();
 
   if (pendingLocate) {
     const loc = pendingLocate;
@@ -1120,7 +1164,7 @@ function highlightInDomElement(rootEl, query) {
   });
 }
 
-// 增强硬锚点特征提取：兼容 <a id> 及中英文各类编号前缀（FAQ / 常见问题 / EX / 示例 / 条款号）
+// 增强硬锚点特征提取：兼容 <a id> 及中英文各类编号前缀
 function getBlockSyncKeys(el) {
   const keys = [];
   for (const child of el.children) {
@@ -1130,7 +1174,6 @@ function getBlockSyncKeys(el) {
   if (prev && prev.tagName === 'A' && prev.id) keys.push('id:' + prev.id);
 
   const txt = el.innerText.trim();
-  // 匹配 FAQ/常见问题、EX/示例/例、或纯条款号如 1.1 / 7.3.1 / 15.134.2
   const m = txt.match(/^(?:(?:FAQ|常见问题|问答)\s*|((?:EX|Example|示例|例)\s*)|(?:Para|第)\s*)?(\d+\.\d+(?:\.\d+)*)\b/i);
   if (m) {
     const num = m[2];
@@ -1143,7 +1186,6 @@ function getBlockSyncKeys(el) {
   return keys;
 }
 
-// 归一化标签类型，用于区间 DP 对齐
 function getBlockType(el) {
   const t = el.tagName;
   if (t === 'H1' || t === 'H2' || t === 'H3' || t === 'H4') return t;
@@ -1168,7 +1210,6 @@ function alignIntervalDP(L, R, lStart, lEnd, rStart, rEnd, linkFn) {
     return;
   }
 
-  // 超大区间降级为比例映射保证流畅
   if (n * m > 36000) {
     for (let i = 0; i < n; i++) {
       const j = Math.min(m - 1, Math.floor((i / n) * m));
@@ -1177,12 +1218,10 @@ function alignIntervalDP(L, R, lStart, lEnd, rStart, rEnd, linkFn) {
     return;
   }
 
-  // 计算两段相似度代价（越小越匹配）
   const cost = (i, j) => {
     const elL = L[lStart + i], elR = R[rStart + j];
     const typeL = getBlockType(elL), typeR = getBlockType(elR);
     let c = (typeL === typeR) ? 0 : (typeL.startsWith('H') !== typeR.startsWith('H') ? 4.0 : 1.5);
-    // 英文字符数通常约为中文字符数的 2.6 倍，按比例比较长度差异
     const lenL = Math.max(1, elL.innerText.trim().length);
     const lenR = Math.max(1, elR.innerText.trim().length * 2.6);
     const ratio = Math.max(lenL, lenR) / Math.min(lenL, lenR);
@@ -1191,7 +1230,7 @@ function alignIntervalDP(L, R, lStart, lEnd, rStart, rEnd, linkFn) {
   };
 
   const dp = Array.from({ length: n + 1 }, () => new Float32Array(m + 1).fill(1e9));
-  const bt = Array.from({ length: n + 1 }, () => new Uint8Array(m + 1)); // 1:diag, 2:up(2L->1R), 3:left(1L->2R)
+  const bt = Array.from({ length: n + 1 }, () => new Uint8Array(m + 1));
   dp[0][0] = 0;
 
   for (let i = 0; i <= n; i++) {
@@ -1236,7 +1275,6 @@ function bindSmartSyncHighlighting() {
       if (!el.innerText.trim()) return false;
       if (el.tagName === 'P' && el.closest('li, td, th')) return false;
       if (el.tagName === 'LI' && el.closest('td, th')) return false;
-      // 避免嵌套 li 重复计数（只保留最内层或不含子列表的文本）
       if (el.tagName === 'LI' && el.querySelector('ul, ol')) return false;
       return true;
     });
@@ -1250,7 +1288,6 @@ function bindSmartSyncHighlighting() {
   L.forEach(el => el.classList.add('sync-block'));
   R.forEach(el => el.classList.add('sync-block'));
 
-  // 1. 收集硬锚点（支持 id 与中英文编号）
   const rightKeyMap = new Map();
   R.forEach((el, ri) => {
     for (const k of getBlockSyncKeys(el)) {
@@ -1274,7 +1311,6 @@ function bindSmartSyncHighlighting() {
     }
   });
 
-  // 2. 分段执行全局 DP 对齐
   const l2r = Array.from({ length: L.length }, () => new Set());
   const r2l = Array.from({ length: R.length }, () => new Set());
   const link = (li, ri) => {
@@ -1291,14 +1327,12 @@ function bindSmartSyncHighlighting() {
     prevL = al + 1;
     prevR = ar + 1;
   }
-  // 对齐最后一个锚点到文章末尾的剩余段落
   alignIntervalDP(L, R, prevL, L.length, prevR, R.length, link);
 
   const l2rArr = l2r.map(s => Array.from(s));
   const r2lArr = r2l.map(s => Array.from(s));
   currentSync = { L, R, l2r: l2rArr, r2l: r2lArr };
 
-  // 3. 绑定悬停多段联动高亮与点击对齐
   const bindSide = (srcList, dstList, mapArr) => {
     srcList.forEach((el, i) => {
       el.addEventListener('mouseenter', (e) => {
@@ -1347,6 +1381,70 @@ function bindSmartSyncHighlighting() {
     else if (targetAnchor) navigateTo(currentFile, targetAnchor);
   });
 });
+
+/* ==================== 本页大纲 (TOC) ==================== */
+function togglePageTOC() {
+  const drawer = document.getElementById('toc-drawer');
+  const btn = document.getElementById('toc-toggle-btn');
+  const isOpen = drawer.classList.toggle('open');
+  btn.classList.toggle('active-toggle', isOpen);
+}
+
+function buildPageTOC() {
+  const headings = Array.from(document.querySelectorAll('#left-body h3, #left-body h4'))
+    .filter(el => el.innerText.trim().length > 0);
+
+  pageHeadings = headings.map((el, idx) => ({
+    idx,
+    el,
+    tag: el.tagName.toLowerCase(),
+    text: el.innerText.trim()
+  }));
+
+  document.getElementById('toc-toggle-btn').textContent = `📑 本页目录 (${pageHeadings.length})`;
+  document.getElementById('toc-filter-input').value = '';
+  renderPageTOCList(pageHeadings);
+}
+
+function filterPageTOC() {
+  const kw = document.getElementById('toc-filter-input').value.trim().toLowerCase();
+  const filtered = kw
+    ? pageHeadings.filter(h => h.text.toLowerCase().includes(kw))
+    : pageHeadings;
+  renderPageTOCList(filtered);
+}
+
+function renderPageTOCList(items) {
+  const listEl = document.getElementById('toc-list');
+  if (!items.length) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12.5px;">本页无子标题或无匹配项</div>';
+    return;
+  }
+  listEl.innerHTML = items.map(h => `
+    <div class="toc-item lvl-${h.tag}" onclick="jumpToPageHeading(${h.idx})">${escapeHtml(h.text)}</div>
+  `).join('');
+}
+
+function jumpToPageHeading(idx) {
+  const item = pageHeadings[idx];
+  if (!item || !item.el) return;
+
+  const { L, R, l2r } = currentSync;
+  const syncIdx = L.indexOf(item.el);
+  const partnerIdx = (syncIdx !== -1 && l2r[syncIdx]?.length) ? l2r[syncIdx][0] : -1;
+  const partnerEl = partnerIdx !== -1 ? R[partnerIdx] : null;
+
+  temporarilyPauseSyncScroll(900);
+  const flash = (el) => {
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.classList.remove('anchor-flash');
+    void el.offsetWidth;
+    el.classList.add('anchor-flash');
+  };
+  flash(item.el);
+  flash(partnerEl);
+}
 
 /* ==================== 搜索模块 ==================== */
 function highlightText(text, query) {
