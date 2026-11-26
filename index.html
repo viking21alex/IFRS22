@@ -238,6 +238,14 @@
     border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: space-between;
   }
   .toc-head strong { font-size: 13px; color: var(--text); }
+  .toc-head-actions { display: flex; align-items: center; gap: 6px; }
+  .toc-lang-btn {
+    border: 1px solid var(--border); background: #fff; color: var(--text-soft);
+    border-radius: 5px; padding: 2px 8px; font-size: 11.5px; font-weight: 600;
+    cursor: pointer; transition: .15s;
+  }
+  .toc-lang-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .toc-lang-btn.is-zh { background: var(--zh-soft); color: var(--zh-dark); border-color: #6ee7b7; }
   .toc-filter { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
   .toc-filter input {
     width: 100%; padding: 6px 10px; border: 1px solid var(--border);
@@ -427,7 +435,10 @@
     <div class="toc-drawer" id="toc-drawer">
       <div class="toc-head">
         <strong>📑 本页标题目录 (TOC)</strong>
-        <button class="dp-close" onclick="togglePageTOC()" title="收起">✕</button>
+        <div class="toc-head-actions">
+          <button class="toc-lang-btn" id="toc-lang-btn" onclick="toggleTOCLang()" title="切换目录中英文">EN / 中文</button>
+          <button class="dp-close" onclick="togglePageTOC()" title="收起">✕</button>
+        </div>
       </div>
       <div class="toc-filter">
         <input id="toc-filter-input" type="text" placeholder="筛选本页标题/FAQ (如 45.4.1)..." oninput="filterPageTOC()">
@@ -510,7 +521,8 @@ let currentSync = { L: [], R: [], l2r: [], r2l: [] };
 let lastSearchState = { results: [], lang: 'en', query: '', title: '' };
 let currentDictWord = '';
 let currentDictAudio = { us: '', uk: '' };
-let pageHeadings = [];
+let pageHeadings = { en: [], zh: [] };
+let tocLang = localStorage.getItem('ifrs_toc_lang') || 'en';
 
 const enCache = new Map();
 const zhCache = new Map();
@@ -906,6 +918,7 @@ function parseMarkdownToSections(mdText, fallbackTitle) {
   let curTitle = '📑 本章目录概览';
   let curNodes = [];
   let pendingAnchors = [];
+  let seenH1Texts = new Set();
 
   const isAnchorOnly = (node) => {
     if (node.nodeType !== 1) return false;
@@ -927,6 +940,16 @@ function parseMarkdownToSections(mdText, fallbackTitle) {
     if (node.nodeType === 3 && !node.textContent.trim()) continue;
     if (node.nodeType === 1 && node.tagName === 'P' && node.textContent.trim() === '返回目录') continue;
     if (isAnchorOnly(node)) { pendingAnchors.push(node); continue; }
+
+    // 去除章节开头重复的 H1 标题（保留锚点）
+    if (node.nodeType === 1 && node.tagName === 'H1') {
+      const normH1 = node.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+      if (normH1 && seenH1Texts.has(normH1)) {
+        if (pendingAnchors.length) { curNodes.push(...pendingAnchors); pendingAnchors = []; }
+        continue;
+      }
+      if (normH1) seenH1Texts.add(normH1);
+    }
 
     if (node.nodeType === 1 && node.tagName === 'H2') {
       flushSection();
@@ -1390,49 +1413,76 @@ function togglePageTOC() {
   btn.classList.toggle('active-toggle', isOpen);
 }
 
+function updateTOCLangBtn() {
+  const btn = document.getElementById('toc-lang-btn');
+  if (!btn) return;
+  btn.classList.toggle('is-zh', tocLang === 'zh');
+  btn.textContent = tocLang === 'zh' ? '当前：中文' : '当前：EN';
+}
+
+function toggleTOCLang() {
+  tocLang = tocLang === 'en' ? 'zh' : 'en';
+  localStorage.setItem('ifrs_toc_lang', tocLang);
+  updateTOCLangBtn();
+  filterPageTOC();
+}
+
 function buildPageTOC() {
-  const headings = Array.from(document.querySelectorAll('#left-body h3, #left-body h4'))
-    .filter(el => el.innerText.trim().length > 0);
+  const extract = (rootId) => Array.from(document.querySelectorAll(`#${rootId} h3, #${rootId} h4`))
+    .filter(el => el.innerText.trim().length > 0)
+    .map((el, idx) => ({
+      idx,
+      el,
+      tag: el.tagName.toLowerCase(),
+      text: el.innerText.trim()
+    }));
 
-  pageHeadings = headings.map((el, idx) => ({
-    idx,
-    el,
-    tag: el.tagName.toLowerCase(),
-    text: el.innerText.trim()
-  }));
+  pageHeadings = {
+    en: extract('left-body'),
+    zh: extract('right-body')
+  };
 
-  document.getElementById('toc-toggle-btn').textContent = `📑 本页目录 (${pageHeadings.length})`;
+  updateTOCLangBtn();
   document.getElementById('toc-filter-input').value = '';
-  renderPageTOCList(pageHeadings);
+  const activeList = pageHeadings[tocLang].length ? pageHeadings[tocLang] : pageHeadings.en;
+  document.getElementById('toc-toggle-btn').textContent = `📑 本页目录 (${activeList.length})`;
+  renderPageTOCList(activeList, pageHeadings[tocLang].length ? tocLang : 'en');
 }
 
 function filterPageTOC() {
   const kw = document.getElementById('toc-filter-input').value.trim().toLowerCase();
+  const baseList = pageHeadings[tocLang] || [];
+  document.getElementById('toc-toggle-btn').textContent = `📑 本页目录 (${baseList.length})`;
   const filtered = kw
-    ? pageHeadings.filter(h => h.text.toLowerCase().includes(kw))
-    : pageHeadings;
-  renderPageTOCList(filtered);
+    ? baseList.filter(h => h.text.toLowerCase().includes(kw))
+    : baseList;
+  renderPageTOCList(filtered, tocLang);
 }
 
-function renderPageTOCList(items) {
+function renderPageTOCList(items, lang) {
   const listEl = document.getElementById('toc-list');
   if (!items.length) {
-    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12.5px;">本页无子标题或无匹配项</div>';
+    listEl.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:12.5px;">${lang === 'zh' ? '当前中文小节无子标题或无匹配项' : '本页无子标题或无匹配项'}</div>`;
     return;
   }
   listEl.innerHTML = items.map(h => `
-    <div class="toc-item lvl-${h.tag}" onclick="jumpToPageHeading(${h.idx})">${escapeHtml(h.text)}</div>
+    <div class="toc-item lvl-${h.tag}" onclick="jumpToPageHeading('${lang}', ${h.idx})">${escapeHtml(h.text)}</div>
   `).join('');
 }
 
-function jumpToPageHeading(idx) {
-  const item = pageHeadings[idx];
+function jumpToPageHeading(lang, idx) {
+  const list = pageHeadings[lang] || [];
+  const item = list[idx];
   if (!item || !item.el) return;
 
-  const { L, R, l2r } = currentSync;
-  const syncIdx = L.indexOf(item.el);
-  const partnerIdx = (syncIdx !== -1 && l2r[syncIdx]?.length) ? l2r[syncIdx][0] : -1;
-  const partnerEl = partnerIdx !== -1 ? R[partnerIdx] : null;
+  const { L, R, l2r, r2l } = currentSync;
+  const srcArr = lang === 'zh' ? R : L;
+  const dstArr = lang === 'zh' ? L : R;
+  const mapArr = lang === 'zh' ? r2l : l2r;
+
+  const syncIdx = srcArr.indexOf(item.el);
+  const partnerIdx = (syncIdx !== -1 && mapArr[syncIdx]?.length) ? mapArr[syncIdx][0] : -1;
+  const partnerEl = partnerIdx !== -1 ? dstArr[partnerIdx] : null;
 
   temporarilyPauseSyncScroll(900);
   const flash = (el) => {
