@@ -25,7 +25,7 @@
     --sync-border: #eab308;
     --highlight: #fde047;
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.1);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.12);
     --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,6 +68,10 @@
   .btn.active-toggle {
     background: var(--accent-soft); color: var(--accent-dark);
     border-color: #93c5fd; font-weight: 600;
+  }
+  .btn.active-green {
+    background: var(--zh-soft); color: var(--zh-dark);
+    border-color: #6ee7b7; font-weight: 600;
   }
   .header-actions { margin-left: auto; display: flex; gap: 8px; }
 
@@ -117,7 +121,7 @@
     box-shadow: var(--shadow-sm); border-left: 3px solid var(--accent); padding-left: 7px;
   }
 
-  /* 双栏工作区（每栏顶部自带对称搜索框） */
+  /* 双栏工作区 */
   .workspace { flex: 1; display: flex; overflow: hidden; padding: 12px; gap: 12px; position: relative; }
   .pane-col {
     flex: 1; display: flex; flex-direction: column; overflow: hidden;
@@ -138,9 +142,7 @@
   }
   .search-box.en:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
   .search-box.zh:focus-within { border-color: var(--zh-accent); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
-  .s-tag {
-    font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
-  }
+  .s-tag { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
   .s-tag.en { background: var(--accent-soft); color: var(--accent-dark); }
   .s-tag.zh { background: var(--zh-soft); color: var(--zh-dark); }
   .search-box input {
@@ -157,9 +159,7 @@
   .s-btn.ai-zh { background: var(--zh-accent); color: #fff; }
   .s-btn.ai-zh:hover { background: var(--zh-dark); }
 
-  .pane-scroll {
-    flex: 1; overflow-y: auto; padding: 22px 30px 60px;
-  }
+  .pane-scroll { flex: 1; overflow-y: auto; padding: 22px 30px 60px; }
 
   .pane-bar {
     font-size: 12px; color: var(--muted); margin-bottom: 16px;
@@ -191,11 +191,7 @@
   .md-body th, .md-body td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
   .md-body th { background: #f8fafc; font-weight: 600; }
 
-  /* 关键词高亮标记 */
-  mark.kw-hl {
-    background: #fef08a; color: #854d0e; font-weight: 600;
-    padding: 0 2px; border-radius: 3px;
-  }
+  mark.kw-hl { background: #fef08a; color: #854d0e; font-weight: 600; padding: 0 2px; border-radius: 3px; }
 
   /* 双方悬浮联动高亮 */
   .sync-block {
@@ -275,6 +271,65 @@
   .sr-lang.zh { background: var(--zh-soft); color: var(--zh-dark); }
   .sr-text { font-size: 13.5px; color: var(--text); line-height: 1.6; }
 
+  /* 英语划词学习悬窗 */
+  .dict-popover {
+    position: fixed; z-index: 90; width: 330px; max-width: 92vw;
+    background: var(--panel); border: 1px solid #dbeafe; border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16); padding: 14px 16px;
+    display: none; animation: popFade .14s ease-out;
+  }
+  .dict-popover.open { display: block; }
+  @keyframes popFade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .dp-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 8px; margin-bottom: 8px;
+  }
+  .dp-word { font-size: 18px; font-weight: 700; color: #0f172a; line-height: 1.25; word-break: break-word; }
+  .dp-close {
+    border: none; background: transparent; color: var(--muted); cursor: pointer;
+    font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px;
+  }
+  .dp-close:hover { background: #f1f5f9; color: var(--text); }
+  .dp-phonetics {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;
+  }
+  .dp-ipa { font-family: "Segoe UI", "Lucida Sans Unicode", sans-serif; font-size: 13px; color: var(--muted); }
+  .dp-audio-btn {
+    border: 1px solid #bfdbfe; background: var(--accent-soft); color: var(--accent-dark);
+    border-radius: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: .15s;
+  }
+  .dp-audio-btn:hover { background: #dbeafe; }
+  .dp-audio-btn.playing { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .dp-zh {
+    font-size: 13.5px; color: #1e293b; line-height: 1.65; margin-bottom: 8px;
+    max-height: 150px; overflow-y: auto;
+  }
+  .dp-pos-row { margin-bottom: 4px; }
+  .dp-pos-tag {
+    display: inline-block; font-size: 11px; font-weight: 600; color: var(--zh-dark);
+    background: var(--zh-soft); padding: 0 5px; border-radius: 4px; margin-right: 5px;
+  }
+  .dp-en-def {
+    font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px;
+    padding: 6px 8px; background: #f8fafc; border-radius: 6px;
+  }
+  .dp-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .dp-ai-btn {
+    width: 100%; border: 1px dashed #93c5fd; background: #f8fafc; color: var(--accent-dark);
+    border-radius: 7px; padding: 5px 10px; font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: .15s;
+  }
+  .dp-ai-btn:hover { background: var(--accent-soft); border-style: solid; }
+  .dp-ai-res {
+    margin-top: 8px; padding: 8px 10px; background: #eff6ff; border-radius: 7px;
+    font-size: 12.5px; color: #1e3a8a; line-height: 1.6; display: none;
+  }
+
   /* 设置弹窗 */
   .modal-mask {
     position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(2px);
@@ -299,6 +354,7 @@
     <span class="brand-badge">中英双栏</span>
   </div>
   <div class="header-actions">
+    <button class="btn active-green" id="vocab-toggle-btn" onclick="toggleVocabMode()" title="开启后，在左侧英文区选中单词将弹出音标、发音与中文释义">📖 划词学习: 开</button>
     <button class="btn active-toggle" id="sync-scroll-btn" onclick="toggleSyncScroll()">🔗 同步滚动</button>
     <button class="btn" onclick="toggleRightPane()">双栏开关</button>
     <button class="btn" onclick="openSettings()">⚙️ API</button>
@@ -367,10 +423,25 @@
   </div>
 </div>
 
+<!-- 英语划词学习悬窗 -->
+<div class="dict-popover" id="dict-popover">
+  <div class="dp-head">
+    <div class="dp-word" id="dp-word">word</div>
+    <button class="dp-close" onclick="closeDictPopover()" title="关闭 (Esc)">✕</button>
+  </div>
+  <div class="dp-phonetics" id="dp-phonetics"></div>
+  <div class="dp-zh" id="dp-zh">查询中...</div>
+  <div class="dp-en-def" id="dp-en-def" style="display:none;"></div>
+  <div class="dp-foot">
+    <button class="dp-ai-btn" id="dp-ai-btn" onclick="explainWordWithAI()">✨ AI 结合 IFRS 会计语境解释</button>
+  </div>
+  <div class="dp-ai-res" id="dp-ai-res"></div>
+</div>
+
 <!-- API 设置弹窗 -->
 <div class="modal-mask" id="settings-modal">
   <div class="modal-box">
-    <h3>API 设置（仅用于 ✨ AI 语义搜索，本地存储）</h3>
+    <h3>API 设置（用于 AI 语义搜索与会计词汇精讲）</h3>
     <div class="field">
       <label>API Base URL（兼容 OpenAI 格式）</label>
       <input id="cfg-url" placeholder="https://api.deepseek.com/v1">
@@ -397,14 +468,18 @@ let zhSearch = null;
 let currentFile = '';
 let currentSecIdx = 0;
 let syncScrollEnabled = true;
+let vocabModeEnabled = localStorage.getItem('ifrs_vocab_mode') !== 'off';
 let pauseSyncScroll = false;
 let pendingLocate = null;
 let currentSync = { L: [], R: [], l2r: [], r2l: [] };
 let lastSearchState = { results: [], lang: 'en', query: '', title: '' };
+let currentDictWord = '';
+let currentDictAudio = { us: '', uk: '' };
 
 const enCache = new Map();
 const zhCache = new Map();
 const expandedFiles = new Set();
+const dictMemCache = new Map();
 
 function getConfig() {
   return {
@@ -431,6 +506,19 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function toggleRightPane() { document.getElementById('right-col').classList.toggle('hidden'); }
 function closeSearch() { document.getElementById('search-modal').classList.remove('open'); }
 function closeFullSearch() { document.getElementById('full-search-page').classList.remove('open'); }
+function closeDictPopover() { document.getElementById('dict-popover').classList.remove('open'); }
+
+function updateVocabButton() {
+  const btn = document.getElementById('vocab-toggle-btn');
+  btn.classList.toggle('active-green', vocabModeEnabled);
+  btn.textContent = vocabModeEnabled ? '📖 划词学习: 开' : '📖 划词学习: 关';
+}
+function toggleVocabMode() {
+  vocabModeEnabled = !vocabModeEnabled;
+  localStorage.setItem('ifrs_vocab_mode', vocabModeEnabled ? 'on' : 'off');
+  updateVocabButton();
+  if (!vocabModeEnabled) closeDictPopover();
+}
 
 function toggleSyncScroll() {
   syncScrollEnabled = !syncScrollEnabled;
@@ -490,6 +578,7 @@ function zhTokenize(text) {
 }
 
 async function init() {
+  updateVocabButton();
   try {
     const catRes = await fetch('catalog.json');
     catalog = await catRes.json();
@@ -525,6 +614,289 @@ async function init() {
   }
 }
 
+/* ==================== 英语划词学习模块 ==================== */
+document.getElementById('left-pane').addEventListener('mouseup', (e) => {
+  if (!vocabModeEnabled) return;
+  if (e.target.closest('#dict-popover')) return;
+
+  setTimeout(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return;
+    const rawText = sel.toString().trim().replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, '');
+    // 支持单个英文单词或 2~3 个词的常见短语
+    if (!rawText || rawText.length > 42 || !/^[a-zA-Z][a-zA-Z\-' ]*$/.test(rawText)) return;
+    if (rawText.split(/\s+/).length > 3) return;
+
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    openDictPopover(rawText, rect);
+  }, 15);
+});
+
+document.addEventListener('mousedown', (e) => {
+  const pop = document.getElementById('dict-popover');
+  if (pop.classList.contains('open') && !pop.contains(e.target)) {
+    closeDictPopover();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeDictPopover();
+    closeSearch();
+  }
+});
+
+function positionDictPopover(rect) {
+  const pop = document.getElementById('dict-popover');
+  pop.classList.add('open');
+  const popW = pop.offsetWidth || 330;
+  const popH = pop.offsetHeight || 220;
+  let left = rect.left + (rect.width / 2) - (popW / 2);
+  left = Math.max(12, Math.min(left, window.innerWidth - popW - 12));
+
+  let top = rect.bottom + 10;
+  if (top + popH > window.innerHeight - 12) {
+    top = Math.max(12, rect.top - popH - 10);
+  }
+  pop.style.left = `${left}px`;
+  pop.style.top = `${top}px`;
+}
+
+async function openDictPopover(word, rect) {
+  currentDictWord = word;
+  currentDictAudio = { us: '', uk: '' };
+
+  document.getElementById('dp-word').textContent = word;
+  document.getElementById('dp-phonetics').innerHTML = `
+    <span class="dp-ipa" id="dp-ipa-text">获取音标中...</span>
+    <button class="dp-audio-btn" id="btn-audio-us" onclick="playPronunciation('us', this)">🔊 美</button>
+    <button class="dp-audio-btn" id="btn-audio-uk" onclick="playPronunciation('uk', this)">🔊 英</button>
+  `;
+  document.getElementById('dp-zh').innerHTML = '<span style="color:var(--muted)">查询中文释义中...</span>';
+  document.getElementById('dp-en-def').style.display = 'none';
+  const aiRes = document.getElementById('dp-ai-res');
+  aiRes.style.display = 'none';
+  aiRes.textContent = '';
+
+  positionDictPopover(rect);
+
+  const key = word.toLowerCase();
+  const cached = dictMemCache.get(key) || JSON.parse(localStorage.getItem('dict_v1_' + key) || 'null');
+  if (cached) {
+    renderDictData(cached);
+    positionDictPopover(rect);
+    return;
+  }
+
+  const [dictInfo, zhInfo] = await Promise.all([
+    fetchFreeDictionary(key),
+    fetchChineseMeaning(key)
+  ]);
+
+  if (currentDictWord.toLowerCase() !== key) return;
+
+  const merged = {
+    ipa: dictInfo.ipa || '',
+    usAudio: dictInfo.usAudio || '',
+    ukAudio: dictInfo.ukAudio || '',
+    enDef: dictInfo.enDef || '',
+    zhRows: zhInfo.rows || [],
+    zhText: zhInfo.text || ''
+  };
+
+  if (merged.zhText || merged.zhRows.length || merged.ipa) {
+    dictMemCache.set(key, merged);
+    try { localStorage.setItem('dict_v1_' + key, JSON.stringify(merged)); } catch {}
+  }
+
+  renderDictData(merged);
+  positionDictPopover(rect);
+}
+
+function renderDictData(data) {
+  currentDictAudio = { us: data.usAudio || '', uk: data.ukAudio || '' };
+  const ipaEl = document.getElementById('dp-ipa-text');
+  if (ipaEl) ipaEl.textContent = data.ipa ? data.ipa : '（点击右侧按钮发音）';
+
+  const zhEl = document.getElementById('dp-zh');
+  if (data.zhRows && data.zhRows.length) {
+    zhEl.innerHTML = data.zhRows.map(r =>
+      `<div class="dp-pos-row"><span class="dp-pos-tag">${escapeHtml(r.pos)}</span>${escapeHtml(r.meanings)}</div>`
+    ).join('');
+  } else if (data.zhText) {
+    zhEl.innerHTML = `<div>${escapeHtml(data.zhText)}</div>`;
+  } else {
+    zhEl.innerHTML = '<span style="color:var(--muted)">暂未获取到在线释义，可点击下方「AI 解释」。</span>';
+  }
+
+  const enDefEl = document.getElementById('dp-en-def');
+  if (data.enDef) {
+    enDefEl.textContent = data.enDef;
+    enDefEl.style.display = 'block';
+  } else {
+    enDefEl.style.display = 'none';
+  }
+}
+
+async function fetchWithTimeout(url, ms = 3500) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+// 获取音标 + 音频 + 简明英释
+async function fetchFreeDictionary(word) {
+  if (word.includes(' ')) return {};
+  try {
+    const res = await fetchWithTimeout(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`, 3200);
+    if (!res.ok) return {};
+    const arr = await res.json();
+    const entry = arr[0] || {};
+    let ipa = entry.phonetic || '';
+    let usAudio = '', ukAudio = '';
+    for (const p of (entry.phonetics || [])) {
+      if (!ipa && p.text) ipa = p.text;
+      if (p.audio) {
+        if (p.audio.includes('-us')) usAudio = p.audio;
+        else if (p.audio.includes('-uk')) ukAudio = p.audio;
+        else if (!usAudio) usAudio = p.audio;
+      }
+    }
+    const firstMeaning = entry.meanings?.[0];
+    const enDef = firstMeaning?.definitions?.[0]?.definition
+      ? `[${firstMeaning.partOfSpeech}] ${firstMeaning.definitions[0].definition}`
+      : '';
+    return { ipa, usAudio, ukAudio, enDef };
+  } catch {
+    return {};
+  }
+}
+
+// 获取中文释义（双源容错：优先 Google 词典多词性，失败自动切 MyMemory）
+async function fetchChineseMeaning(word) {
+  // 通道 1：Google Translate 词典接口（含词性分类）
+  const tryGoogle = async () => {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&dt=bd&q=${encodeURIComponent(word)}`;
+    const res = await fetchWithTimeout(url, 2500);
+    if (!res.ok) throw new Error('google fail');
+    const data = await res.json();
+    const rows = [];
+    if (Array.isArray(data[1])) {
+      for (const item of data[1].slice(0, 4)) {
+        const pos = item[0] || '释义';
+        const terms = Array.isArray(item[1]) ? item[1].slice(0, 5).join('；') : '';
+        if (terms) rows.push({ pos, meanings: terms });
+      }
+    }
+    const text = Array.isArray(data[0]) ? data[0].map(s => s[0]).join('') : '';
+    if (!rows.length && !text) throw new Error('empty');
+    return { rows, text };
+  };
+
+  // 通道 2：MyMemory 免费接口（国内直连友好）
+  const tryMyMemory = async () => {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`;
+    const res = await fetchWithTimeout(url, 4000);
+    if (!res.ok) throw new Error('mm fail');
+    const data = await res.json();
+    const text = data?.responseData?.translatedText || '';
+    if (!text) throw new Error('empty');
+    return { rows: [], text };
+  };
+
+  try {
+    return await tryGoogle();
+  } catch {
+    try {
+      return await tryMyMemory();
+    } catch {
+      return { rows: [], text: '' };
+    }
+  }
+}
+
+// 点击发声：词典原声 -> 有道真人发声 -> 浏览器内置 TTS 兜底
+function playPronunciation(accent, btnEl) {
+  const word = currentDictWord;
+  if (!word) return;
+  if (btnEl) btnEl.classList.add('playing');
+  const stopVisual = () => { if (btnEl) btnEl.classList.remove('playing'); };
+
+  const fallbackTTS = () => {
+    if (!('speechSynthesis' in window)) { stopVisual(); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(word);
+    utter.lang = accent === 'uk' ? 'en-GB' : 'en-US';
+    utter.rate = 0.92;
+    utter.onend = stopVisual;
+    utter.onerror = stopVisual;
+    window.speechSynthesis.speak(utter);
+  };
+
+  const youdaoUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${accent === 'uk' ? 1 : 2}`;
+  const primaryUrl = (accent === 'uk' ? currentDictAudio.uk : currentDictAudio.us) || youdaoUrl;
+
+  const audio = new Audio(primaryUrl);
+  audio.onended = stopVisual;
+  audio.onerror = () => {
+    if (primaryUrl !== youdaoUrl) {
+      const yd = new Audio(youdaoUrl);
+      yd.onended = stopVisual;
+      yd.onerror = fallbackTTS;
+      yd.play().catch(fallbackTTS);
+    } else {
+      fallbackTTS();
+    }
+  };
+  audio.play().catch(() => {
+    if (primaryUrl !== youdaoUrl) {
+      const yd = new Audio(youdaoUrl);
+      yd.onended = stopVisual;
+      yd.onerror = fallbackTTS;
+      yd.play().catch(fallbackTTS);
+    } else {
+      fallbackTTS();
+    }
+  });
+}
+
+// 可选：调用已配置的 AI 解释该词在 IFRS 中的专业用法
+async function explainWordWithAI() {
+  const cfg = getConfig();
+  if (!cfg.key) { openSettings(); alert('请先填入 API Key'); return; }
+  const resBox = document.getElementById('dp-ai-res');
+  resBox.style.display = 'block';
+  resBox.textContent = 'AI 正在结合 IFRS 语境解析...';
+
+  try {
+    const res = await fetch(`${cfg.url}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.key}` },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role: 'system', content: '你是 IFRS 审计与英语专家。请用极简练的中文（3句话以内）给出该英文词/短语的音标、标准会计中文译法以及在 IFRS 准则中的常见用法。' },
+          { role: 'user', content: currentDictWord }
+        ],
+        temperature: 0.2
+      })
+    });
+    const data = await res.json();
+    resBox.textContent = data.choices?.[0]?.message?.content?.trim() || '未返回内容';
+  } catch (err) {
+    resBox.textContent = '请求失败：' + err.message;
+  }
+}
+
+/* ==================== 章节加载与双栏同步 ==================== */
 function parseMarkdownToSections(mdText, fallbackTitle) {
   const temp = document.createElement('div');
   temp.innerHTML = marked.parse(mdText);
@@ -677,6 +1049,7 @@ async function handleHash() {
 }
 
 function renderDualSection(en, zh, secIdx, anchor = '') {
+  closeDictPopover();
   const enSec = en.sections[secIdx];
   const zhSec = (zh && zh.sections[secIdx]) ? zh.sections[secIdx] : null;
 
@@ -747,7 +1120,6 @@ function locateDualPosition({ lang, anchor, snippet, query }) {
   const srcEl = srcList[foundIdx];
   const dstEl = dstList[mapArr[foundIdx]];
 
-  // 在命中的正文段落里高亮搜索词
   if (query && srcEl) highlightInDomElement(srcEl, query);
 
   temporarilyPauseSyncScroll(900);
@@ -762,7 +1134,6 @@ function locateDualPosition({ lang, anchor, snippet, query }) {
   flash(dstEl);
 }
 
-// 在 DOM 文本节点中安全高亮关键词（不破坏原有链接/标签）
 function highlightInDomElement(rootEl, query) {
   const terms = String(query || '').trim().split(/\s+/).filter(t => t.length >= 2);
   if (!terms.length) return;
@@ -870,6 +1241,8 @@ function bindSmartSyncHighlighting() {
       });
       el.addEventListener('click', (e) => {
         if (e.target.closest('a[href]')) return;
+        // 正在划词选中文本时，不触发点击对齐滚动
+        if (window.getSelection().toString().trim().length > 0) return;
         e.stopPropagation();
         const partner = dstList[mapArr[i]];
         if (partner) {
@@ -902,12 +1275,11 @@ function bindSmartSyncHighlighting() {
   });
 });
 
-// 搜索词高亮渲染（用于标题和正文摘要）
+/* ==================== 搜索模块 ==================== */
 function highlightText(text, query) {
   const safe = escapeHtml(text);
   const terms = String(query || '').trim().split(/\s+/).filter(t => t.length >= 1);
   if (!terms.length) return safe;
-  // 按长度降序匹配，优先高亮长词组
   terms.sort((a, b) => b.length - a.length);
   const re = new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi');
   return safe.replace(re, '<mark class="kw-hl">$1</mark>');
@@ -928,7 +1300,6 @@ function buildResultItemHtml(r, idx, lang, query, showIndex = false) {
   `;
 }
 
-// 独立英文 / 中文离线搜索
 function runSearch(lang, customQuery = null, customLabel = '') {
   const engine = lang === 'zh' ? zhSearch : enSearch;
   if (!engine) { alert('索引仍在后台加载，请稍等 1 秒重试'); return; }
@@ -948,7 +1319,6 @@ function runSearch(lang, customQuery = null, customLabel = '') {
   showSearchResults(results, lang, q, title);
 }
 
-// 独立 AI 语义扩词搜索
 async function runAISearch(lang) {
   const inputEl = document.getElementById(lang === 'zh' ? 'search-zh' : 'search-en');
   const q = inputEl.value.trim();
@@ -1008,13 +1378,11 @@ function showSearchResults(results, lang, query, title) {
   }
 }
 
-// 独立页面显示全部搜索结果
 function openFullSearchPage() {
   closeSearch();
   const { results, lang, query, title } = lastSearchState;
   document.getElementById('fsp-title').textContent = title;
   const listEl = document.getElementById('fsp-list');
-  // 最多渲染前 500 条保证流畅
   const cap = results.slice(0, 500);
   listEl.innerHTML = cap.map((r, idx) => buildResultItemHtml(r, idx, lang, query, true)).join('');
   if (results.length > 500) {
