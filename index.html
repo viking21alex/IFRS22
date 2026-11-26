@@ -1051,7 +1051,18 @@ async function handleHash() {
 function renderDualSection(en, zh, secIdx, anchor = '') {
   closeDictPopover();
   const enSec = en.sections[secIdx];
-  const zhSec = (zh && zh.sections[secIdx]) ? zh.sections[secIdx] : null;
+  let zhSec = null;
+if (zh && zh.sections.length) {
+  if (anchor && zh.anchorMap.has(anchor)) {
+    zhSec = zh.sections[zh.anchorMap.get(anchor)];
+  } else if (zh.sections[secIdx]) {
+    zhSec = zh.sections[secIdx];
+  } else if (zh.sections.length === 1) {
+    zhSec = zh.sections[0];
+  } else {
+    zhSec = zh.sections[Math.min(secIdx, zh.sections.length - 1)];
+  }
+}
 
   const prevSec = secIdx > 0 ? en.sections[secIdx - 1] : null;
   const nextSec = secIdx < en.sections.length - 1 ? en.sections[secIdx + 1] : null;
